@@ -1,39 +1,94 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { useCallback, useEffect, useState } from "react";
+import { Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Provider } from "react-redux";
+import { Store } from "@/redux/store/Store";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
+//import { useAppPermissions } from "@/hooks/usePermissionHook";
+//import { getFCMToken } from "@/lib/getFcmToken";
+//import { listenForTokenRefresh } from "@/lib/listenforTokenRefresh";
+//import { setupNotificationListeners } from "@/lib/setUpNotificationListeners";
+//import messaging from "@react-native-firebase/messaging";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+//import * as Notifications from "expo-notifications";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [client] = useState(() => new QueryClient());
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+  const toastConfig = useCallback(
+    () => ({
+      success: (props: any) => (
+        <BaseToast
+          {...props}
+          style={{ marginTop: 10, borderLeftColor: "green" }}
+        />
+      ),
+      error: (props: any) => (
+        <ErrorToast
+          {...props}
+          style={{ marginTop: 10, borderLeftColor: "red" }}
+        />
+      ),
+    }),
+    []
+  );
 
-  if (!loaded) {
-    return null;
-  }
+  // useEffect(() => {
+  //   const handleNotifications = async () => {
+  //     try {
+  //       const token = await getFCMToken();
+  //       console.log("FCM Token (verified):", token);
+  //       if (!token) {
+  //         console.error("No FCM token received");
+  //         return;
+  //       }
+  //       await AsyncStorage.setItem("fcmToken", token); // Remove JSON.stringify
+
+  //       // Verify token in console
+  //       const storedToken = await AsyncStorage.getItem("fcmToken");
+  //       console.log("Stored FCM Token:", storedToken);
+  //       // Enable notification handlers
+  //       setupNotificationListeners();
+  //       listenForTokenRefresh();
+  //     } catch (error) {
+  //       console.error("FCM Error:", error);
+  //     }
+  //   };
+
+  //   handleNotifications();
+  // }, []);
+
+  // Notifications.setNotificationHandler({
+  //   handleNotification: async () => ({
+  //     shouldShowAlert: true,
+  //     shouldPlaySound: true,
+  //     shouldSetBadge: true,
+  //     priority: Notifications.AndroidNotificationPriority.MAX,
+  //   }),
+  // });
+
+  // // useAppPermissions();
+  // useAppPermissions();
+
+  // useEffect(() => {
+  //   messaging().onMessage(async (remoteMessage) => {
+  //     console.log("MESSAGE RECEIVED:", remoteMessage);
+  //   });
+  // }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Provider store={Store}>
+      <QueryClientProvider client={client}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(onboard)" />
+          </Stack>
+          <Toast config={toastConfig()} />
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </Provider>
   );
 }

@@ -1,74 +1,124 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { color } from "@/constants/Colors";
+import Container from "@/components/Home/Container";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllRes } from "@/api/api";
+import { Restaurant } from "@/types";
+import LottieView from "lottie-react-native";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { data, isLoading, isError, error, refetch, isPending } = useQuery<{
+    message: string;
+    restaurants: Restaurant[];
+  }>({
+    queryKey: ["restaurants"],
+    queryFn: fetchAllRes,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetch(); 
+    } catch (error) {
+      console.error("Error during refresh:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!data) {
+      refetch();
+    }
+  }, [data, refetch]);
+
+  
+
+  if (isError) {
+    return (
+      <View>
+        <Text>Error: {error.message}</Text>
+      </View>
+    );
+  }
+
+  const transformedData = Array.isArray(data?.restaurants)
+    ? data.restaurants.map((item) => ({
+        restaurantId: item._id,
+        title: item.title,
+        data:
+          Array.isArray(item.data) && item.data.length > 0
+            ? item.data.map((entry) => ({
+                ...entry,
+                restaurantId: item._id,
+              }))
+            : [],
+      }))
+    : [];
+
+  const groupedData = transformedData.reduce((acc, item) => {
+    if (!item.title || !item.data) return acc;
+    const existing = acc.find((section) => section.title === item.title);
+    if (existing) {
+      existing.data.push(...item.data);
+    } else {
+      acc.push({ title: item.title, data: [...item.data] });
+    }
+    return acc;
+  }, [] as { title: string; data: any[] }[]);
+
+  if (isLoading && isPending ) {
+    return (
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          flex: 1,
+        }}
+      >
+        <LottieView
+          source={require("@/assets/images/lottie/loader.json")}
+          autoPlay
+          loop
+          style={{ width: 100, height: 100 }}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+    );
+  }
+
+  console.log("fetched data",data)
+
+console.log("restaurants",data?.restaurants)
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={color.green} style='auto'/>
+      <Container
+        data={groupedData}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        isLoading={isLoading}
+      />
+      <View style={styles.footer} />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    //backgroundColor:"#fbfbfb",
+    backgroundColor: color.white,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  footer: {
+    backgroundColor: color.green,
+    height: 54,
   },
 });

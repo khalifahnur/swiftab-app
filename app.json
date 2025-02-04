@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.lifkha.swiftabapp"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +32,34 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(SwifTab) to use your location."
+        }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(Swiftab) needs access to your Camera.",
+          "enableMicrophonePermission": true,
+          "microphonePermissionText": "$(Swiftab) needs access to your Microphone.",
+          "enableCodeScanner": true
+        }
+      ],
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibGlma2hhIiwiYSI6ImNtNm9zNDEybzBrbDMycXNnNGc1aGQ5cnQifQ.aFxdhL0EGuoc59UZjz3m6g"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(Swiftab) to access your photos.",
+          "cameraPermission": "Allow $(Swiftab) to access your camera."
         }
       ]
     ],
