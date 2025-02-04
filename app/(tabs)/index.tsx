@@ -93,10 +93,6 @@ export default function HomeScreen() {
     );
   }
 
-  console.log("fetched data",data)
-
-console.log("restaurants",data?.restaurants)
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={color.green} style='auto'/>
