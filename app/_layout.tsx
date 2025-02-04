@@ -11,6 +11,7 @@ import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 //import { setupNotificationListeners } from "@/lib/setUpNotificationListeners";
 //import messaging from "@react-native-firebase/messaging";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetworkStatus from "@/components/NetworkStatus";
 //import * as Notifications from "expo-notifications";
 
 export default function RootLayout() {
@@ -79,13 +80,14 @@ export default function RootLayout() {
 
   return (
     <Provider store={Store}>
-      <QueryClientProvider client={client}>
+      <QueryClientProvider client={client}>    
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(onboard)" />
           </Stack>
+          <NetworkStatus />
           <Toast config={toastConfig()} />
         </GestureHandlerRootView>
       </QueryClientProvider>
