@@ -1,0 +1,73 @@
+[
+    {
+      "id": 1,
+      "name": "Safari Delight",
+      "location": "South C",
+      "long": 36.8225,
+      "lat": -1.3159
+    },
+    {
+      "id": 2,
+      "name": "Breeze Bistro",
+      "location": "South B",
+      "long": 36.8367,
+      "lat": -1.3065
+    },
+    {
+      "id": 3,
+      "name": "Urban Plates",
+      "location": "Nairobi CBD",
+      "long": 36.8219,
+      "lat": -1.2921
+    },
+    {
+      "id": 4,
+      "name": "Green Hills Restaurant",
+      "location": "South C",
+      "long": 36.8250,
+      "lat": -1.3172
+    },
+    {
+      "id": 5,
+      "name": "Sizzling Spices",
+      "location": "Westlands",
+      "long": 36.8054,
+      "lat": -1.2696
+    },
+    {
+      "id": 6,
+      "name": "Lakeview Diner",
+      "location": "South B",
+      "long": 36.8390,
+      "lat": -1.3033
+    },
+    {
+      "id": 7,
+      "name": "Sunset Grill",
+      "location": "Kilimani",
+      "long": 36.7865,
+      "lat": -1.2927
+    },
+    {
+      "id": 8,
+      "name": "The Hungry Lion",
+      "location": "South C",
+      "long": 36.8234,
+      "lat": -1.3168
+    },
+    {
+      "id": 9,
+      "name": "Flavors of Kenya",
+      "location": "Karen",
+      "long": 36.7209,
+      "lat": -1.3156
+    },
+    {
+      "id": 10,
+      "name": "The Gourmet Spot",
+      "location": "South B",
+      "long": 36.8378,
+      "lat": -1.3054
+    }
+  ]
+  
