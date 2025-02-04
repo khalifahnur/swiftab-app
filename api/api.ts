@@ -10,7 +10,7 @@ import {
 } from "@/types";
 
 const api = axios.create({
-  baseURL: "https://fa39-41-90-42-73.ngrok-free.app/swiftab",
+  baseURL: "https://d07d-41-90-42-73.ngrok-free.app/swiftab",
   headers: {
     "Content-Type": "application/json",
   },
@@ -118,7 +118,7 @@ export const newPassword = async ({
 export const fetchAllRes = async () => {
   try {
     const response = await api.get("/restaurant/fetch-all-restaurants");
-    console.log("fetched from server",response.data)
+    //console.log("fetched from server",response.data)
     return response.data;
   } catch (error: any) {
     if (error?.response) {
