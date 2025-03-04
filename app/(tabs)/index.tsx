@@ -1,31 +1,66 @@
 import { StyleSheet, Text, View } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
 import { color } from "@/constants/Colors";
 import Container from "@/components/Home/Container";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllRes } from "@/api/api";
+import { fetchAllRes, fetchRecentlyRes } from "@/api/api";
 import { Restaurant } from "@/types";
 import LottieView from "lottie-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface UserData {
+  email: string;
+  name: string;
+  phoneNumber: string;
+  userId: string;
+}
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
+  const [userData, setUserData] = useState<UserData>({} as UserData);
 
-  const { data, isLoading, isError, error, refetch, isPending } = useQuery<{
-    message: string;
-    restaurants: Restaurant[];
-  }>({
+  useEffect(() => {
+    const FetchData = async () => {
+      const userObj = JSON.parse(
+        (await AsyncStorage.getItem("userObj")) || "{}"
+      );
+      setUserData(userObj.user);
+    };
+    FetchData();
+  }, []);
+
+
+  // Fetch all restaurants
+  const {
+    data: restaurantsData,
+    isLoading: isRestaurantsLoading,
+    isError: isRestaurantsError,
+    error: restaurantsError,
+    refetch: refetchRestaurants,
+  } = useQuery<{ message: string; restaurants: Restaurant[] }>({
     queryKey: ["restaurants"],
     queryFn: fetchAllRes,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const {
+    data: recentlyViewedData,
+    isLoading: isRecentlyViewedLoading,
+    isError: isRecentlyViewedError,
+    error: recentlyViewedError,
+    refetch: refetchRecentlyViewed,
+  } = useQuery<{ message: string; restaurants: Restaurant[] }>({
+    queryKey: ["recentlyViewed",userData.userId],
+    queryFn: () => fetchRecentlyRes(userData.userId),
     staleTime: 10 * 60 * 1000,
   });
 
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await refetch(); 
+      await Promise.all([refetchRestaurants(), refetchRecentlyViewed()]);
     } catch (error) {
       console.error("Error during refresh:", error);
     } finally {
@@ -34,23 +69,40 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    if (!data) {
-      refetch();
+    if (!restaurantsData || !recentlyViewedData) {
+      refetchRestaurants();
+      refetchRecentlyViewed();
     }
-  }, [data, refetch]);
+  }, [restaurantsData, recentlyViewedData, refetchRestaurants, refetchRecentlyViewed]);
 
-  
-
-  if (isError) {
+  // Handle errors
+  if (isRestaurantsError || isRecentlyViewedError) {
     return (
       <View>
-        <Text>Error: {error.message}</Text>
+        <Text>Error: {restaurantsError?.message || recentlyViewedError?.message}</Text>
       </View>
     );
   }
 
-  const transformedData = Array.isArray(data?.restaurants)
-    ? data.restaurants.map((item) => ({
+  // Transform data for all restaurants
+  const transformedRestaurants = Array.isArray(restaurantsData?.restaurants)
+  ? restaurantsData.restaurants.map((item) => ({
+      restaurantId: item._id,
+      title: item.title,
+      data:
+        Array.isArray(item.data) && item.data.length > 0
+          ? item.data.map((entry, index) => ({
+              ...entry,
+              _id: entry._id || `${item._id}-${index}`, // Ensure unique _id
+              restaurantId: item._id,
+            }))
+          : [],
+    }))
+  : [];
+
+  // Transform data for recently viewed restaurants
+  const transformedRecentlyViewed = Array.isArray(recentlyViewedData?.restaurants)
+    ? recentlyViewedData.restaurants.map((item) => ({
         restaurantId: item._id,
         title: item.title,
         data:
@@ -63,18 +115,8 @@ export default function HomeScreen() {
       }))
     : [];
 
-  const groupedData = transformedData.reduce((acc, item) => {
-    if (!item.title || !item.data) return acc;
-    const existing = acc.find((section) => section.title === item.title);
-    if (existing) {
-      existing.data.push(...item.data);
-    } else {
-      acc.push({ title: item.title, data: [...item.data] });
-    }
-    return acc;
-  }, [] as { title: string; data: any[] }[]);
-
-  if (isLoading && isPending ) {
+  // Show loading state
+  if (isRestaurantsLoading || isRecentlyViewedLoading) {
     return (
       <View
         style={{
@@ -95,14 +137,15 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={color.green} style='auto'/>
+      <StatusBar backgroundColor={color.green} style="auto" />
       <Container
-        data={groupedData}
+        allRestaurants={transformedRestaurants}
+        //recentlyViewed={recentlyViewedData}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        isLoading={isLoading}
+        isLoading={isRestaurantsLoading || isRecentlyViewedLoading}
       />
-      <View style={styles.footer} />
+      {/* <View style={styles.footer} /> */}
     </SafeAreaView>
   );
 }
@@ -110,11 +153,10 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //backgroundColor:"#fbfbfb",
     backgroundColor: color.white,
   },
   footer: {
     backgroundColor: color.green,
-    height: 54,
+    height: 60,
   },
 });
