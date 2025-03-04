@@ -21,6 +21,7 @@ const TopTabLayout = () => {
   return (
     <MaterialTopTabs
       screenOptions={{
+        animationEnabled:false,
         tabBarStyle: {
           backgroundColor: "transparent",
         },

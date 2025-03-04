@@ -23,6 +23,7 @@ export default function IndexTab() {
   const { setHasActiveReservation } = useStore();
 
   const { userId } = userData;
+  
   const { data, isLoading, isError, error, refetch } = useQuery<
     ActiveReservation[],
     Error
