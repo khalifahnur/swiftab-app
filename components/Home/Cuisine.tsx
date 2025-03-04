@@ -55,7 +55,7 @@ export default function Cuisine() {
   return (
       <FlashList
         data={data}
-        snapToInterval={item_width}
+        // snapToInterval={item_width}
         snapToAlignment="center"
         decelerationRate={Platform.OS === "ios" ? 0 : 0.2}
         renderItem={({ item }) => {
@@ -71,7 +71,7 @@ export default function Cuisine() {
         ListHeaderComponent={()=><NewSubHeader headerTitle="Browse by cuisine" />}
         ListHeaderComponentStyle={{alignItems:'center',justifyContent:'center',}}
         horizontal
-        estimatedItemSize={50}
+        estimatedItemSize={150}
         showsHorizontalScrollIndicator={false}
       />
   );

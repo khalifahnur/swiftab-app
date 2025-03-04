@@ -1,14 +1,20 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import Search from "./Search";
 import { color } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 
 // type headerProps = {
 //   headerLayout:(event: LayoutChangeEvent) => void;
@@ -46,46 +52,50 @@ export default function Header() {
     setGreeting(greetingText);
   }, []);
   return (
-    <View 
-    //onLayout={headerLayout}
-    style={styles.container}>
+    <>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greetings}>{greeting},</Text>
-          <Text style={styles.name}>{userData.name}</Text>
+          <Text style={styles.greeting}>{greeting},</Text>
+          <Text style={styles.username}>{userData.name}</Text>
         </View>
-        <Pressable style={styles.cart} onPress={()=>route.navigate("/screens/cart")}>
-        {cart?.length > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{cart.length}</Text>
-        </View>
-      )}
-          <AntDesign name="shoppingcart" size={20} color="black" />
-        </Pressable>
+        <TouchableOpacity
+          style={styles.cartButton}
+          onPress={() => route.replace("/screens/cart")}
+        >
+          {cart?.length > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{cart.length}</Text>
+            </View>
+          )}
+          <Ionicons name="cart-outline" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
-      <View style={styles.search}>
-        <Search />
-      </View> 
-    </View>
+
+      {/* Search Bar */}
+      <TouchableOpacity style={styles.searchContainer} onPress={()=>route.replace('/screens/search')}>
+        <Ionicons
+          name="search"
+          size={20}
+          color="#666"
+          style={styles.searchIcon}
+        />
+        <View style={styles.searchInput}><Text>Search ...</Text></View>
+      </TouchableOpacity>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding:20,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    padding: 20,
   },
   greetings: {
-    color:color.white,
+    color: color.white,
     fontSize: 15,
     fontWeight: "400",
   },
   name: {
-    color:color.white,
+    color: color.white,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -96,20 +106,58 @@ const styles = StyleSheet.create({
   },
   search: {
     marginVertical: 15,
-    alignItems:'center',
+    alignItems: "center",
   },
   badge: {
     position: "absolute",
-    height:20,
-    width:20,
+    height: 20,
+    width: 20,
     backgroundColor: "red",
     top: -10,
     right: 0,
     borderRadius: 20,
   },
   badgeText: {
-    color: "#fff", 
+    color: "#fff",
     fontSize: 12,
-    textAlign:"center"
+    textAlign: "center",
+  },
+  header: {
+    backgroundColor: color.green,
+    padding: 20,
+    paddingTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  greeting: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  username: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  cartButton: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    padding: 10,
+    borderRadius: 50,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    margin: 20,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
   },
 });

@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
-  LayoutChangeEvent,
-  SectionList,
   StyleSheet,
   View,
-  RefreshControl,
+  Text,
+  TextInput,
+  ScrollView,
+  Image,
+  TouchableOpacity,
 } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedScrollHandler,
-  interpolate,
-  Extrapolation,
-} from "react-native-reanimated";
-import LottieView from "lottie-react-native"; // Import LottieView
-import Restaurants from "@/components/Home/Restaurants";
-import NewSubHeader from "./NewSubHeader";
-import Promotions from "./Promotions";
+import { Ionicons } from "@expo/vector-icons";
 import Header from "./Header";
-import { color } from "@/constants/Colors";
-import Cuisine from "./Cuisine";
 import { RestaurantData } from "@/types";
-
-const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
+import NewSubHeader from "./NewSubHeader";
+import Restaurants from "./Restaurants";
+import Cuisine from "./Cuisine";
 
 interface Section {
   title: string;
@@ -30,184 +21,113 @@ interface Section {
 }
 
 interface ContainerProps {
-  data: Section[];
+  allRestaurants: Section[];
   refreshing: boolean;
   onRefresh: () => void;
-  isLoading: boolean; // Add isLoading prop
+  isLoading: boolean;
+}
+interface RestaurantCardProps {
+  name: string;
+  location: string;
+  rating: number;
+  image: string;
 }
 
-export default function Container({
-  data,
+const Container = ({
+  allRestaurants,
   refreshing,
   onRefresh,
   isLoading,
-}: ContainerProps) {
-  const translateY = useSharedValue(0);
-  const scrollY = useSharedValue(0);
-  const previousScrollY = useSharedValue(0);
-  const clampedScrollY = useSharedValue(0);
-  const [customHeight, setCustomHeight] = useState({
-    stickyHeader: 0,
-    promotion: 0,
-  });
-  const [isLayoutReady, setIsLayoutReady] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!isLayoutReady) {
-        setIsLayoutReady(true);
-      }
-    }, 1000); 
-
-    return () => clearTimeout(timeout);
-  }, [isLayoutReady]);
-
-  const onLayout =
-    (type: "stickyHeader" | "promotion") => (event: LayoutChangeEvent) => {
-      const height = event.nativeEvent.layout.height;
-      if (customHeight[type] !== height) {
-        setCustomHeight((prev) => {
-          const newCustomHeight = { ...prev, [type]: height };
-          if (newCustomHeight.stickyHeader > 0 && newCustomHeight.promotion > 0) {
-            setIsLayoutReady(true);
-          }
-          return newCustomHeight;
-        });
-      }
-    };
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      const currentScrollY = event.contentOffset.y;
-      scrollY.value = currentScrollY;
-
-      const isScrollingDown = currentScrollY > previousScrollY.value;
-
-      if (isScrollingDown) {
-        clampedScrollY.value = interpolate(
-          currentScrollY,
-          [0, customHeight.stickyHeader],
-          [0, -50]
-        );
-      } else {
-        clampedScrollY.value = interpolate(currentScrollY, [0, 100], [10, 10]);
-      }
-
-      translateY.value = -clampedScrollY.value;
-      previousScrollY.value = currentScrollY;
-    },
-  });
-
-  const headerStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: interpolate(
-          translateY.value,
-          [0, 100],
-          [0, -100],
-          Extrapolation.CLAMP
-        ),
-      },
-    ],
-  }));
-
-  if (!isLayoutReady || isLoading) {
-    return (
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          flex: 1,
-        }}
-      >
-        <LottieView
-          source={require("@/assets/images/lottie/loader.json")}
-          autoPlay
-          loop
-          style={{ width: 100, height: 100 }}
-        />
-      </View>
-    );
-  }
-
+}: ContainerProps) => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Animated.View
-        style={[styles.header, headerStyle]}
-        onLayout={onLayout("stickyHeader")}
-      >
-        <Header />
-      </Animated.View>
+      <Header />
 
-      {/* SectionList */}
-      <AnimatedSectionList
-        sections={data}
-        renderSectionHeader={({ section }) => (
-          <View style={styles.subContainer}>
-            <NewSubHeader headerTitle={section.title} btnText="More" />
-            <Restaurants data={section.data} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Special Offer Card */}
+        <View style={styles.offerCard}>
+          <View>
+            <Text style={styles.offerText}>Get special offer</Text>
+            <Text style={styles.offerSubtext}>up to</Text>
+            <Text style={styles.offerPercentage}>30%</Text>
+            <TouchableOpacity style={styles.bookButton}>
+              <Text style={styles.bookButtonText}>Book Now</Text>
+            </TouchableOpacity>
           </View>
-        )}
-        renderItem={() => null}
-        ListHeaderComponent={() => (
-          <View
-            onLayout={onLayout("promotion")}
-            style={[
-              styles.promotion,
-              {
-                marginTop: customHeight.stickyHeader,
-                backgroundColor: color.green,
-              },
-            ]}
-          >
-            <Promotions />
-          </View>
-        )}
-        ListFooterComponent={() => (
-          <>
-            <Cuisine />
-          </>
-        )}
-        ListFooterComponentStyle={{ backgroundColor: color.green, flex: 1 }}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+          <Image
+            source={{ uri: "https://placeholder.com/food" }}
+            style={styles.offerImage}
+          />
+        </View>
+
+        <Restaurants title="New Restaurant" data={allRestaurants} />
+
+        <Restaurants title="Recommended Restaurants" data={allRestaurants} />
+
+        {/* Cuisine Section */}
+        <View style={styles.cuisineSection}>
+          <Cuisine />
+        </View>
+      </ScrollView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  subContainer: {
-    backgroundColor: color.white,
-    marginBottom: 5,
+
+  offerCard: {
+    backgroundColor: "#009688",
+    margin: 20,
+    borderRadius: 15,
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  header: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    backgroundColor: "#003366",
-    shadowColor: "#fff",
-    shadowRadius: 5,
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 1,
-    elevation: 5,
-    zIndex: 44,
+  offerText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "600",
   },
-  promotion: {
-    width: "100%",
+  offerSubtext: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  offerPercentage: {
+    color: "#fff",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginVertical: 5,
+  },
+  bookButton: {
+    backgroundColor: "#E0F2F1",
     paddingHorizontal: 20,
-    shadowColor: "#fff",
-    shadowRadius: 5,
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.5,
-    elevation: 5,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 10,
+    alignSelf: "flex-start",
+  },
+  bookButtonText: {
+    color: "#009688",
+    fontWeight: "600",
+  },
+  offerImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+
+  section: {
+    marginBottom: 20,
+  },
+  cuisineSection: {
+    padding: 0,
+    marginBottom: 50,
   },
 });
+
+export default Container;
