@@ -6,11 +6,12 @@ import {
   paymentVariables,
   Reservation,
   ReservationResponse,
+  Restaurant,
   userCancelReservationParams,
 } from "@/types";
 
 const api = axios.create({
-  baseURL: "https://d07d-41-90-42-73.ngrok-free.app/swiftab",
+  baseURL: "https://5b4b-41-90-41-117.ngrok-free.app/swiftab",
   headers: {
     "Content-Type": "application/json",
   },
@@ -135,6 +136,26 @@ export const fetchAllRes = async () => {
   }
 };
 
+export const fetchRecentlyRes = async (userId: string): Promise<{ message: string; restaurants: Restaurant[] }> => {
+  
+  try {
+    const response = await api.get(`/restaurant/fetch-recently-viewed-restaurants/${userId}`);
+    return response.data; // Ensure the response matches the expected structure
+  } catch (error: any) {
+    if (error?.response) {
+      console.error("Error fetching recently viewed restaurants:", error.response);
+      const errorMessage =
+        error?.response?.data?.message ||
+        "An error occurred while fetching recently viewed restaurants.";
+      throw new Error(errorMessage);
+    } else {
+      // Handle network errors or cases where there's no response
+      console.error("Network error or no response:", error);
+      throw new Error("Network error or no response from server.");
+    }
+  }
+};
+
 export const fetchNearMeRes = async (
   latitude: number,
   longitude: number
@@ -209,11 +230,12 @@ export const fetchActiveResTable = async (
 export const createReservation = async (
   userId: string,
   restaurantId: string,
+  fcmToken:string,
   data: Reservation
 ): Promise<ReservationResponse> => {
   try {
     const response = await api.post<ReservationResponse>(
-      `/reservation/${userId}/reserve/${restaurantId}`,
+      `/reservation/${userId}/reserve/${restaurantId}/${fcmToken}`,
       { data }
     );
     return response.data;
@@ -334,6 +356,28 @@ export const userCancelReservation = async ({userId,restaurantId,reservationId,i
       const errorMessage =
         error?.response?.data?.message ||
         "An error occurred during cancellation reservation.";
+      throw new Error(errorMessage);
+    } else {
+      // response (network issues, etc.)
+      console.error("Network error or no response:", error);
+      throw new Error("Network error or no response from server.");
+    }
+  }
+};
+
+/**
+ * fetch all user orders
+ */
+export const fetchAllOrders = async (userId: string) => {
+  try {
+    const response = await api.get(`/orders/fetch-all-user-order/${userId}`);
+    return response.data;
+  } catch (error: any) {
+    if (error?.response) {
+      console.error("Error fetch-all-order:", error.response);
+      const errorMessage =
+        error?.response?.data?.message ||
+        "An error occurred during fetch-all-order.";
       throw new Error(errorMessage);
     } else {
       // response (network issues, etc.)
