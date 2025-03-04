@@ -32,16 +32,16 @@ export default function SplashScreen() {
 
         // Handle navigation
         if (!hasSeenOnboard) {
-          router.replace('/(onboard)/');
+          router.replace('/(onboard)');
         } else if (authToken) {
-          router.replace('/(tabs)/');
+          router.replace('/(tabs)');
         } else {
-          router.replace('/(auth)/');
+          router.replace('/(auth)');
         }
 
       } catch (error) {
         console.error(error);
-        router.replace('/(auth)/signin'); // Fallback navigation
+        router.replace('/(auth)/signin');
       }
     };
 
