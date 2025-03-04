@@ -221,3 +221,32 @@ export interface userCancelReservationParams {
   restaurantId: string;
   reservationId: string;
 }
+
+export interface CreateOrder{
+menu:MenuItem[];
+userId:string,
+restaurantId  :string;
+reservationId:string;
+//diningArea:string;
+tableNumber:string;
+}
+
+export interface OrderResponse {
+message: string;
+}
+
+export interface FetchOrder{
+  __v: number;
+  _id: string;
+  createdAt: string;
+  menu: MenuItem[];
+  orderId: string;
+  paid: "Paid" | "Unpaid";
+  reservationId: string;
+  restaurantId: string;
+  status: "Served" | "Not-served";
+  tableNumber: string;
+  takenBy: string;
+  userId: string;
+}
+
