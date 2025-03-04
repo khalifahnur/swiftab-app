@@ -15,7 +15,7 @@ type cardProps = {
   restaurantName: string;
   rate: number;
   location: string;
-  handlePress: () => void;
+  handlePress?: () => void;
   cardWidth?:number | 220
 };
 export default function Card({
@@ -27,74 +27,61 @@ export default function Card({
   cardWidth
 }: cardProps) {
   return (
-    <TouchableOpacity onPress={handlePress} style={[styles.card,{width:cardWidth}]}>
-      <Image source={{uri:image}} style={styles.restaurantImage} />
-      <View style={styles.detailsContainer}>
-        <View style={styles.detail}>
+    <View style={styles.restaurantCard}>
+      <TouchableOpacity onPress={handlePress}>
+        <Image source={{ uri: image }} style={styles.restaurantImage} />
+        <View style={styles.restaurantInfo}>
           <Text style={styles.restaurantName}>{restaurantName}</Text>
+          <View style={styles.locationContainer}>
+            <Ionicons name="location-outline" size={16} color="#666" />
+            <Text style={styles.locationText}>{location}</Text>
+          </View>
           <View style={styles.ratingContainer}>
             <Text style={styles.ratingText}>{rate}</Text>
-            <Ionicons name="star" size={13} color="gold" />
+            <Ionicons name="star" size={14} color="#FFD700" />
           </View>
         </View>
-
-        <View style={styles.locationContainer}>
-          <Ionicons name="location-sharp" size={16} color="gray" />
-          <Text style={styles.locationText}>{location}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: color.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 1, height: 2 },
-    shadowOpacity: 0.9,
-    shadowRadius: 5,
-    elevation: 1,
-    borderRadius: 10,
-    marginHorizontal: 10,
-    marginBottom: 5,
+  restaurantCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginLeft: 20,
+    width: 250,
+    overflow: 'hidden',
   },
   restaurantImage: {
-    width: "100%",
-    height: 100,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    width: '100%',
+    height: 150,
   },
-  detailsContainer: {
-    padding: 10,
-  },
-  detail: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  restaurantInfo: {
+    padding: 15,
   },
   restaurantName: {
-    fontSize: 13,
-    fontWeight: "500",
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 5,
   },
   locationContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
   },
   locationText: {
-    fontSize: 12,
-    color: "gray",
-    marginLeft: 4,
+    color: '#666',
+    marginLeft: 5,
+    fontSize: 14,
   },
   ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   ratingText: {
-    fontSize: 13,
-    color: "gray",
-    marginRight: 4,
-  },
-});
+    marginRight: 5,
+    fontWeight: '600',
+  }
+})
