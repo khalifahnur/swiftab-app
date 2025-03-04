@@ -10,15 +10,16 @@ type MenuProps = {
     lunch: MenuItem[];
     dinner: MenuItem[];
   };
+  restaurantId:string
 };
 
-const Menu: React.FC<MenuProps> = ({ menu }) => {
+const Menu: React.FC<MenuProps> = ({ menu,restaurantId }) => {
   const router = useRouter();
 
-  const handleMenuNavigation = (items: MenuItem[], menuType: string) => {
+  const handleMenuNavigation = (items: MenuItem[], menuType: string,restaurantId:string) => {
     router.navigate({
       pathname: "/screens/menu",
-      params: { data: JSON.stringify(items), menuType },
+      params: { data: JSON.stringify(items), menuType , restaurantId },
     });
   };
 
@@ -46,7 +47,7 @@ const Menu: React.FC<MenuProps> = ({ menu }) => {
               <TouchableOpacity
                 key={menuType}
                 style={styles.menuButton}
-                onPress={() => handleMenuNavigation(items, menuType)}
+                onPress={() => handleMenuNavigation(items, menuType,restaurantId)}
               >
                 <ImageBackground
                   source={image}

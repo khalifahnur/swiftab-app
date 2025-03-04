@@ -7,11 +7,12 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/CartSlice";
 import ModalLoader from "@/components/ModalLoader";
 import { useRouter } from "expo-router";
+import { ReservationResponse } from "@/types";
 
 type modalLoaderProps = {
   modalVisible: boolean;
   data: {
-    id: number;
+    _id: string;
     image: string;
     cost: number;
     rate: number;
@@ -19,11 +20,17 @@ type modalLoaderProps = {
     name: string;
   };
   setModalVisible: (visible: boolean) => void;
+  restaurantId:string;
+  reservationData:ReservationResponse,
+  userId:string
 };
 export default function ModalScreen({
   modalVisible,
   setModalVisible,
   data,
+  restaurantId,
+  reservationData,
+  userId
 }: modalLoaderProps) {
   const [selectedValue, setSelectedValue] = useState<string>("Reviews");
   const [cost, setCost] = useState<number>(1);
@@ -49,20 +56,24 @@ export default function ModalScreen({
     if (data) {
       dispatch(
         addToCart({
-          id: data?.id,
-          name: data?.name,
-          image: data?.image,
-          cost: data.cost * cost,
-          quantity: cost,
-          description:data.description,
-          rate:data.rate
+          menu:[{
+            _id: data?._id,
+            name: data?.name,
+            image: data?.image,
+            cost: data.cost,
+            quantity: cost,
+            description:data.description,
+            rate:data.rate,}],
+            restaurantId:restaurantId,
+            reservationData:reservationData,
+            userId:userId
         })
       );
       setTimeout(()=>{
         setBtnLoading(false)
       },3000)
       
-      route.navigate("/(tabs)/")
+      //route.navigate('/(tabs)')
     }
   }
 

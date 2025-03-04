@@ -13,6 +13,15 @@ import { AntDesign } from "@expo/vector-icons";
 import ModalScreen from "./Modal";
 import { MenuItem } from "@/types";
 import LottieView from "lottie-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+interface UserData {
+  email: string;
+  name: string;
+  phoneNumber: string;
+  userId: string;
+}
 
 export default function Container() {
   const params = useLocalSearchParams();
@@ -25,6 +34,8 @@ export default function Container() {
   const [data, setData] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [reservationData,setReservationData] = useState({});
+  const [userData, setUserData] = useState<UserData>({} as UserData);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +74,27 @@ export default function Container() {
     setImagesLoaded((prev) => prev + 1);
   };
 
+  const handleModal = (item: MenuItem) => {
+    setModalVisible(true);
+    setModalData(item);
+  };
+
+  useEffect(() => {
+    const FetchData = async () => {
+      const reservationData = JSON.parse(
+        (await AsyncStorage.getItem("reservationData")) || "{}"
+      );
+       setReservationData(reservationData)
+       const userObj = JSON.parse(
+        (await AsyncStorage.getItem("userObj")) || "{}"
+      );
+      setUserData(userObj.user);
+    };
+    FetchData();
+  }, []);
+
+  const { userId } = userData;
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -76,10 +108,7 @@ export default function Container() {
     );
   }
 
-  const handleModal = (item: MenuItem) => {
-    setModalVisible(true);
-    setModalData(item);
-  };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -122,11 +151,14 @@ export default function Container() {
       <ModalScreen
         modalVisible={modalVisible}
         data={modalData}
+        restaurantId={params.restaurantId}
         setModalVisible={setModalVisible}
+        reservationData={reservationData}
+        userId={userId}
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

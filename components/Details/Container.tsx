@@ -59,7 +59,6 @@ const Container = () => {
         review: [],
       };
 
-
   const wishlistCart = useSelector((state: RootState) => state.wishlist.wishlist);
 
   const isInWishlist = wishlistCart.some((item) => item._id === paramData?._id);
@@ -149,7 +148,7 @@ const Container = () => {
           <Info data={paramData} />
           <View style={styles.divider} />
           <About data={paramData} />
-          <Menu menu={paramData.menu} />
+          <Menu menu={paramData.menu} restaurantId={paramData.restaurantId} />
           <Reviews reviews={paramData.review} />
         </View>
       </Animated.ScrollView>
@@ -177,7 +176,7 @@ const Container = () => {
 
       {/* Navigation buttons */}
       <View style={styles.navigationButtons}>
-        <BackButton onPress={() => router.navigate("/(tabs)/")} />
+        <BackButton onPress={() => router.replace("/(tabs)")} />
         <WishlistButton isInWishlist={isInWishlist} onPress={handleWishlist} />
       </View>
 
