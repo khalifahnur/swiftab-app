@@ -11,4 +11,4 @@ export function useFetchAll() {
       console.error("fetch error:", error.message);
     },
   });
-}
+};
