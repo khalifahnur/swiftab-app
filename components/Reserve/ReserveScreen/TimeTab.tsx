@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import useStore from "@/store/useStore";
+import TimeExample from "./TimeExample";
 
 export default function TimeTab() {
   const {
@@ -47,22 +48,23 @@ export default function TimeTab() {
     },
   ];
 
-  const handleTimeSelect = (time: string) => {
-    if (!selectedStartTime || selectedEndTime) {
-      setSelectedStartTime(time);
-      setSelectedEndTime(''); // Reset end time if a new start time is selected
-    } else {
-      if (time > selectedStartTime) {
-        setSelectedEndTime(time);
-      } else {
-        alert("End time must be after start time");
-      }
-    }
-  };
+  // const handleTimeSelect = (time: string) => {
+  //   if (!selectedStartTime || selectedEndTime) {
+  //     setSelectedStartTime(time);
+  //     setSelectedEndTime(''); // Reset end time if a new start time is selected
+  //   } else {
+  //     if (time > selectedStartTime) {
+  //       setSelectedEndTime(time);
+  //     } else {
+  //       alert("End time must be after start time");
+  //     }
+  //   }
+  // };
 
   return (
     <View style={styles.timeSlots}>
-      {timeSlots.map((slot, index) => (
+      <Text style={styles.title}>Select Time</Text>
+      {/* {timeSlots.map((slot, index) => (
         <View key={index} style={styles.timeGroup}>
           <Text style={styles.groupTitle}>{slot.title}</Text>
           <View style={styles.timeRow}>
@@ -89,7 +91,8 @@ export default function TimeTab() {
             ))}
           </View>
         </View>
-      ))}
+      ))} */}
+      <TimeExample />
     </View>
   );
 }
@@ -98,35 +101,10 @@ const styles = StyleSheet.create({
   timeSlots: {
     flex: 1,
   },
-  timeGroup: {
-    marginBottom: 20,
-  },
-  groupTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 10,
-  },
-  timeRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-  },
-  timeButton: {
-    padding: 10,
-    margin: 5,
-    borderRadius: 10,
-    backgroundColor: "#e0e0e0",
-  },
-  timeStartSelected: {
-    backgroundColor: "#008000", // Green for start time
-  },
-  timeEndSelected: {
-    backgroundColor: "#0000FF", // Blue for end time
-  },
-  timeText: {
-    color: "#000",
-  },
-  timeTextSelected: {
-    color: "#fff",
+    textAlign: "center",
+    marginBottom: 20,
   },
 });

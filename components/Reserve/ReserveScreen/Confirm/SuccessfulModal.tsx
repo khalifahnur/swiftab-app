@@ -24,6 +24,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({visible, handleModalVisible,
 
   if (!reservationDetails) return null;
 
+  console.log(reservationDetails?.responseData.date);
+
   const handleViewTicket = ()=>{
     router.push('/(tabs)')
     handleModalVisible()
@@ -51,13 +53,13 @@ const SuccessModal: React.FC<SuccessModalProps> = ({visible, handleModalVisible,
           
           {/* Reservation Details */}
           <View style={styles.detailsContainer}>
-            <DetailRow label="Reservation ID" value={reservationDetails.reservationId} />
-            <DetailRow label="Name" value={reservationDetails.name} />
-            <DetailRow label="Date" value={reservationDetails.date} />
-            <DetailRow label="Time" value={reservationDetails.time} />
-            <DetailRow label="Duration" value={`${reservationDetails.duration} Mins`} />
-            <DetailRow label="No. of Guests" value={reservationDetails.guest.toString()} />
-            <DetailRow label="Table Number" value={reservationDetails.tableNumber} />
+            <DetailRow label="Reservation ID" value={reservationDetails?.responseData.reservationId} />
+            <DetailRow label="Name" value={reservationDetails?.responseData.name} />
+            <DetailRow label="Date" value={reservationDetails?.responseData.date} />
+            <DetailRow label="Time" value={reservationDetails?.responseData.time} />
+            <DetailRow label="Duration" value={`${reservationDetails?.responseData.duration} Mins`} />
+            <DetailRow label="No. of Guests" value={reservationDetails?.responseData.guest.toString()} />
+            <DetailRow label="Table Number" value={reservationDetails?.responseData.tableNumber} />
           </View>
 
           {/* Buttons */}
@@ -71,7 +73,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({visible, handleModalVisible,
             
             <TouchableOpacity 
               style={[styles.button, styles.secondaryButton]}
-              //onPress={() => router.push('/(tabs)/bookings')}
+              onPress={() => router.push('/(tabs)/(toptabs)')}
             >
               <Text style={[styles.buttonText, styles.secondaryButtonText]}>
                 View Bookings

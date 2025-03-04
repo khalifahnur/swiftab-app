@@ -1,4 +1,4 @@
-import { RefreshControl, StyleSheet } from "react-native";
+import { RefreshControl } from "react-native";
 import React from "react";
 import { FlashList } from "@shopify/flash-list";
 import ReservationCard from "./ReservationCard";
@@ -37,5 +37,3 @@ export default function Container({ data, refreshing, onRefresh }: prop) {
     />
   );
 }
-
-const styles = StyleSheet.create({});

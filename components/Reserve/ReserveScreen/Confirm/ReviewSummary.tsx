@@ -10,6 +10,7 @@ import {
 import useStore from "@/store/useStore";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
+import "moment-timezone";
 import Header from "@/components/Details/Header";
 import { color } from "@/constants/Colors";
 import Details from "./Details";
@@ -39,8 +40,11 @@ const ReviewSummary: React.FC = () => {
   } = useStore();
 
   const [userData, setUserData] = useState<UserData>({} as UserData);
+  const [fcmToken, setFcmToken] = useState<string | null>();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [reservationDetails, setReservationDetails] = useState<ReservationResponse | null>(null);
+  const [reservationDetails, setReservationDetails] =
+    useState<ReservationResponse | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reserveMutation = useCreateReservation({
     onSuccess: (data) => {
@@ -48,13 +52,13 @@ const ReviewSummary: React.FC = () => {
       setShowSuccessModal(true);
     },
     onError: (error) => {
-      Alert.alert('Error', error.message);
-    }
+      Alert.alert("Error", error.message);
+    },
   });
 
-  const handleModalVisible = ()=>{
+  const handleModalVisible = () => {
     setShowSuccessModal(!showSuccessModal);
-  }
+  };
 
   const image = Array.isArray(param.image) ? param.image[0] : param.image;
   const location = Array.isArray(param.location)
@@ -74,44 +78,50 @@ const ReviewSummary: React.FC = () => {
     ? param.latitude[0]
     : param.latitude;
 
-  const dateTime = moment(`${selectedDate}T${selectedStartTime}`);
-
-  const formattedDateTime = dateTime.format("MMM Do, YYYY | hh:mm A");
-
-  const bookingDate = moment().format("MMM Do YYYY | h:mm A");
-  console.log("today date",formattedDateTime);
-
   useEffect(() => {
     const FetchData = async () => {
       const userObj = JSON.parse(
         (await AsyncStorage.getItem("userObj")) || "{}"
       );
+      const fcmToken = await AsyncStorage.getItem("fcmToken");
       setUserData(userObj.user);
+      setFcmToken(fcmToken);
     };
     FetchData();
   }, []);
 
-  const bookingDateOnly = bookingDate.split(" | ")[0]; // "Jan 2nd 2025"
-  const startTime = `${formattedDateTime} ${selectedStartTime}`;
-  const fullEndTime = `${formattedDateTime} ${selectedEndTime}`; // "Jan 2nd 2025 15:00"
+  const dateTimeString = `${selectedDate}T${selectedStartTime}:00`;
+  
+  const dateTime = moment.tz(dateTimeString, "Africa/Nairobi");
 
+  const formattedDateTime = dateTime.format("MMM Do, YYYY | HH:mm A");
 
+  const normalizeStartTime = dateTime.toDate();
 
-  // Use moment to parse and convert to ISO format
-  const normalizebookingDate = moment(bookingDateOnly, "MMM Do YYYY").toDate();
-  const normalizeStartTime = moment(startTime, "MMM Do YYYY HH:mm").toDate();
-  const normalizedEndTime = moment(fullEndTime, "MMM Do YYYY HH:mm").toDate();
+  const fullEndTime = moment.tz(
+    `${selectedDate}T${selectedEndTime}:00`,
+    "Africa/Nairobi"
+  ).toDate()
 
-  //userInfo
+  const nowInNairobi = moment.tz("Africa/Nairobi").format("MMM Do, YYYY | HH:mm A");
+
+  // console.log("startTime", formattedDateTime);
+  // console.log("normalized start time", normalizeStartTime);
+  // console.log("fullEndTime", fullEndTime);
+
+  // console.log(nowInNairobi)
+
   const { email, name, phoneNumber, userId } = userData;
 
   const handleReservation = () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     if (!userData || !restaurantId || !userId) {
       Alert.alert("Error", "Missing user or restaurant information");
       return;
     }
-  
+
     const reservationData: Reservation = {
       restaurantInfo: {
         restaurantId,
@@ -127,25 +137,27 @@ const ReviewSummary: React.FC = () => {
         name,
         email,
         phoneNumber,
-        bookingDate: normalizebookingDate,
+        bookingDate: normalizeStartTime,
         bookingFor: normalizeStartTime,
-        endTime: normalizedEndTime,
+        endTime: fullEndTime,
         guest: guestCount,
         tableNumber: selectedTableId,
-        diningArea: selectedFloorTxt
-      }
+        diningArea: selectedFloorTxt,
+      },
     };
-  
-    // console.log('Sending reservation data:', JSON.stringify(reservationData, null, 2));
-  
+
     reserveMutation.mutate({
       restaurantId,
       userId,
-      data: reservationData
+      fcmToken,
+      data: reservationData,
     });
   };
 
-  
+  useEffect(() => {
+    if (!showSuccessModal) setIsSubmitting(false);
+  }, [showSuccessModal]);
+
   useLayoutEffect(() => {
     navigate.setOptions({
       headerShown: false,
@@ -164,13 +176,12 @@ const ReviewSummary: React.FC = () => {
             <Text style={styles.restaurantAddress}>{param.location}</Text>
           </View>
         </View>
-        {/* <View style={styles.divider} /> */}
 
         <Details
-         name={name}
-         email={email}
-         phoneNumber={phoneNumber}
-          bookingDate={bookingDate}
+          name={name}
+          email={email}
+          phoneNumber={phoneNumber}
+          bookingDate={nowInNairobi} // Use formatted date for display
           formattedDateTime={formattedDateTime}
           guestCount={guestCount}
           selectedTableId={selectedTableId}
@@ -182,7 +193,7 @@ const ReviewSummary: React.FC = () => {
           <Text style={styles.buttonText}>Confirm Booking</Text>
         </TouchableOpacity>
       </View>
-      <SuccessModal 
+      <SuccessModal
         visible={showSuccessModal}
         handleModalVisible={handleModalVisible}
         reservationDetails={reservationDetails}
@@ -221,12 +232,6 @@ const styles = StyleSheet.create({
   restaurantAddress: {
     fontSize: 12,
     color: "#666666",
-  },
-  divider: {
-    width: "100%",
-    borderColor: "#e1e1e1",
-    borderWidth: 1,
-    marginVertical: 10,
   },
   footer: {
     shadowColor: "#000",
