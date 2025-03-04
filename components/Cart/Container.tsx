@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Dimensions,
   Image,
   Modal,
   Pressable,
@@ -18,6 +19,7 @@ import { removeItems } from "@/redux/CartSlice";
 import { color } from "@/constants/Colors";
 import LottieView from "lottie-react-native";
 import QRCode from "react-native-qrcode-svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Container() {
   const [Loading, setLoading] = useState<boolean>(false);
@@ -45,12 +47,19 @@ export default function Container() {
   };
 
   const subTotal = cart.reduce(
-    (acc, item) => acc + item.cost * item.quantity,
+    (acc, cartItem) =>
+      acc +
+      cartItem.menu.reduce(
+        (sum, menuItem) => sum + menuItem.cost * menuItem.quantity,
+        0
+      ),
     0
   );
-  const HandleRemoveItem = (id: number) => {
+
+  const HandleRemoveItem = (id: string) => {
     dispatch(removeItems(id));
   };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -63,7 +72,7 @@ export default function Container() {
         <SafeAreaView style={styles.container}>
           <View style={[styles.header, { gap: (MAX_WIDTH * 1) / 2 - 80 }]}>
             <Pressable
-              onPress={() => router.navigate("/(tabs)/")}
+              onPress={() => router.navigate("/(tabs)")}
               style={{ backgroundColor: "#fff", padding: 10, borderRadius: 20 }}
             >
               <AntDesign name="arrowleft" size={20} color="black" />
@@ -80,64 +89,68 @@ export default function Container() {
           </View>
 
           <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
-            {cart?.map((desc, index) => (
-              <View key={index} style={styles.cartStyle}>
-                <View style={{ flex: 0.2 }}>
-                  <Image
-                    source={{uri:desc.image}}
-                    style={{ width: 50, height: 50 }}
-                  />
-                </View>
-                <View style={{ flex: 0.7, alignItems: "center" }}>
-                  <Text>{desc.name}</Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      gap: 5,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "600",
-                        paddingTop: 10,
-                      }}
-                    >
-                      Ksh.{desc.cost}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "600",
-                        paddingTop: 10,
-                      }}
-                    >
-                      x
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "600",
-                        paddingTop: 10,
-                      }}
-                    >
-                      {desc.quantity}
-                    </Text>
+            {cart?.map((cartItem, cartIndex) => (
+              <View key={cartIndex}>
+                {cartItem.menu.map((desc, index) => (
+                  <View key={index} style={styles.cartStyle}>
+                    <View style={{ flex: 0.2 }}>
+                      <Image
+                        source={{ uri: desc.image }}
+                        style={{ width: 50, height: 50 }}
+                      />
+                    </View>
+                    <View style={{ flex: 0.7, alignItems: "center" }}>
+                      <Text>{desc.name}</Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          gap: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: "600",
+                            paddingTop: 10,
+                          }}
+                        >
+                          Ksh.{desc.cost}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: "600",
+                            paddingTop: 10,
+                          }}
+                        >
+                          x
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: "600",
+                            paddingTop: 10,
+                          }}
+                        >
+                          {desc.quantity}
+                        </Text>
+                      </View>
+                    </View>
+                    <View>
+                      <Pressable
+                        onPress={() => HandleRemoveItem(desc._id)}
+                        style={{
+                          backgroundColor: "#e8e8e8",
+                          padding: 10,
+                          borderRadius: 20,
+                        }}
+                      >
+                        <AntDesign name="delete" size={20} color="#84d76b" />
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-                <View>
-                  <Pressable
-                    onPress={() => HandleRemoveItem(desc.id)}
-                    style={{
-                      backgroundColor: "#e8e8e8",
-                      padding: 10,
-                      borderRadius: 20,
-                    }}
-                  >
-                    <AntDesign name="delete" size={20} color="#84d76b" />
-                  </Pressable>
-                </View>
+                ))}
               </View>
             ))}
           </View>
@@ -168,56 +181,86 @@ export default function Container() {
         </SafeAreaView>
       ) : (
         <View style={styles.container}>
-        <Pressable style={styles.closeButton} onPress={()=>router.navigate("/(tabs)/")}>
-        <AntDesign name="close" size={20} color="#fff" />
-      </Pressable>
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-          }}
-        >
-          <LottieView
-            source={require("@/assets/images/lottie/emptycart.json")}
-            autoPlay
-            loop
-            style={{ width: 100, height: 100 }}
-          />
-          <Text>Cart is Empty</Text>
-        </View>
+          <Pressable
+            style={styles.closeButton}
+            onPress={() => router.replace("/(tabs)")}
+          >
+            <AntDesign name="close" size={20} color="#fff" />
+          </Pressable>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+            }}
+          >
+            <LottieView
+              source={require("@/assets/images/lottie/emptycart.json")}
+              autoPlay
+              loop
+              style={{ width: 100, height: 100 }}
+            />
+            <Text>Cart is Empty</Text>
+          </View>
         </View>
       )}
 
       {modalVisible && (
         <Modal
-          visible={modalVisible}
-          transparent={false}
-          animationType="fade"
-          statusBarTranslucent={true}
-        >
-          <View style={styles.centeredView}>
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent={true}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalContainer}>
+            {/* Close button */}
             <Pressable
-              style={{ alignItems: "center", justifyContent: "center" }}
-              onPress={()=>setModalVisible(false)}
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
             >
-              <AntDesign name="closecircleo" size={24} color="black" />
+              <AntDesign name="closecircle" size={28} color="#FF6B6B" />
             </Pressable>
-            <View style={styles.modalView}>
-              <QRCode value={JSON.stringify(cart)} size={200} />
+            
+            {/* QR Code with container */}
+            <View style={styles.qrContainer}>
+              <QRCode 
+                value={JSON.stringify(cart)} 
+                size={250} 
+                enableLinearGradient 
+                linearGradient={['#FF6B6B', '#4ECDC4']}
+                gradientDirection={[0, 170, 0, 0]}
+                backgroundColor="white"
+              />
             </View>
+            
+            {/* Message */}
+            <Text style={styles.messageText}>
+              Please wait for the waiter to scan your QR code to process your order
+            </Text>
+            
+            {/* Navigation Button */}
+            <Pressable style={styles.navButton} onPress={() => {
+              setModalVisible(false);
+              router.navigate({pathname:"/screens/paymentscreen",params:{subTotal}})
+            }}>
+              <LinearGradient
+                colors={['#FF6B6B', '#FF8E53']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
+              >
+                <Text style={styles.buttonText}>Continue</Text>
+              </LinearGradient>
+            </Pressable>
           </View>
-          <Text
-            style={{ textAlign: "center", fontSize: 12, fontWeight: "500" }}
-          >
-            Please wait for the waiter to take your order by scanning the qrcode
-          </Text>
-        </Modal>
+        </View>
+      </Modal>
       )}
     </>
   );
 }
-
+const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -282,9 +325,6 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
   },
   modalView: {
     margin: 20,
@@ -301,15 +341,82 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  closeButton: {
-    marginTop:50,
-    marginRight:10,
-    alignSelf: "flex-end",
-    backgroundColor: color.gray,
-    width: 40,
-    height: 40,
+  // closeButton: {
+  //   marginTop: 50,
+  //   marginRight: 10,
+  //   alignSelf: "flex-end",
+  //   backgroundColor: color.gray,
+  //   width: 40,
+  //   height: 40,
+  //   borderRadius: 20,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: width * 0.85,
+    backgroundColor: 'white',
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+    zIndex: 1,
+  },
+  qrContainer: {
+    marginTop: 20,
+    marginBottom: 30,
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  messageText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 30,
+    lineHeight: 24,
+  },
+  navButton: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  gradient: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
