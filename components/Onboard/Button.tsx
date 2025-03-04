@@ -63,7 +63,7 @@ export function Button({
       flatListRef.current?.scrollToIndex({ index: flatListIndex.value + 1 });
     } else {
       await AsyncStorage.setItem('hasSeenOnboard', 'true');
-      router.replace('/(auth)/');
+      router.replace('/(auth)');
     }
   };
 
