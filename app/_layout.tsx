@@ -5,14 +5,10 @@ import { Provider } from "react-redux";
 import { Store } from "@/redux/store/Store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
-//import { useAppPermissions } from "@/hooks/usePermissionHook";
-//import { getFCMToken } from "@/lib/getFcmToken";
-//import { listenForTokenRefresh } from "@/lib/listenforTokenRefresh";
-//import { setupNotificationListeners } from "@/lib/setUpNotificationListeners";
-//import messaging from "@react-native-firebase/messaging";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetworkStatus from "@/components/NetworkStatus";
-//import * as Notifications from "expo-notifications";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useAppPermissions } from "@/hooks/usePermissionHook";
 
 export default function RootLayout() {
   const [client] = useState(() => new QueryClient());
@@ -35,48 +31,15 @@ export default function RootLayout() {
     []
   );
 
-  // useEffect(() => {
-  //   const handleNotifications = async () => {
-  //     try {
-  //       const token = await getFCMToken();
-  //       console.log("FCM Token (verified):", token);
-  //       if (!token) {
-  //         console.error("No FCM token received");
-  //         return;
-  //       }
-  //       await AsyncStorage.setItem("fcmToken", token); // Remove JSON.stringify
+  const { fcmToken } = useNotifications();
 
-  //       // Verify token in console
-  //       const storedToken = await AsyncStorage.getItem("fcmToken");
-  //       console.log("Stored FCM Token:", storedToken);
-  //       // Enable notification handlers
-  //       setupNotificationListeners();
-  //       listenForTokenRefresh();
-  //     } catch (error) {
-  //       console.error("FCM Error:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    if (fcmToken) {
+      AsyncStorage.setItem("fcmToken", fcmToken);
+    }
+  }, [fcmToken]);
 
-  //   handleNotifications();
-  // }, []);
-
-  // Notifications.setNotificationHandler({
-  //   handleNotification: async () => ({
-  //     shouldShowAlert: true,
-  //     shouldPlaySound: true,
-  //     shouldSetBadge: true,
-  //     priority: Notifications.AndroidNotificationPriority.MAX,
-  //   }),
-  // });
-
-  // // useAppPermissions();
-  // useAppPermissions();
-
-  // useEffect(() => {
-  //   messaging().onMessage(async (remoteMessage) => {
-  //     console.log("MESSAGE RECEIVED:", remoteMessage);
-  //   });
-  // }, []);
+  useAppPermissions()
 
   return (
     <Provider store={Store}>
