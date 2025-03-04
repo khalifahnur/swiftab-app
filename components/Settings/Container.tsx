@@ -1,121 +1,505 @@
-import { color } from '@/constants/Colors';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import ProfileImage from './ProfileImage';
+import { color } from "@/constants/Colors";
+import {
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import { Link, router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Animated,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import ProfileImage from "./ProfileImage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+interface UserData {
+  email: string;
+  name: string;
+  phoneNumber: string;
+  userId: string;
+}
 
-const Container = () => {
+const ProfileContainer = ({ totalOrders }) => {
+  const [animation] = useState(new Animated.Value(0));
+  const [userData, setUserData] = useState<UserData>({} as UserData);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { name, email } = userData;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const userObj = JSON.parse(
+          (await AsyncStorage.getItem("userObj")) || "{}"
+        );
+        setUserData(userObj.user);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Animate crown icon on component mount
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(animation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animation, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const crownAnimation = {
+    transform: [
+      {
+        translateY: animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, -5],
+        }),
+      },
+    ],
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={color.green} />
+        <Text style={styles.loadingText}>Loading account details...</Text>
+      </SafeAreaView>
+    );
+  }
   return (
-    <View style={styles.container}>
-      {/* Profile Image and Name */}
-      <View style={styles.profileContainer}>
-        <ProfileImage />
-      </View>
-
-      <TouchableOpacity style={styles.premiumBanner}>
-        <View style={styles.premiumIconContainer}>
-          {/* <Icon name="crown-outline" size={24} color="#fff" /> */}
-          <FontAwesome5 name="crown" size={24} color="#fff" />
-        </View>
-        <View style={styles.premiumTextContainer}>
-          <Text style={styles.premiumTitle}>Get Premium Plan</Text>
-          <Text style={styles.premiumSubtitle}>Lorem ipsum dolor sit amet</Text>
-        </View>
-        <Icon name="chevron-forward-outline" size={24} color="#fff" />
-      </TouchableOpacity>
-
-      {/* Menu Options */}
-      <View style={styles.menuContainer}>
-        {menuItems.map((item) => (
-          <TouchableOpacity key={item.title} style={styles.menuItem} onPress={()=>router.push(item.url)}>
-            <View style={styles.menuIconContainer}>
-              <Icon name={item.icon} size={24} color="#6F7A8A" />
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={[color.green, color.green]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.profileHeader}
+        >
+          <View style={styles.profileContent}>
+            <View style={styles.profileImageWrapper}>
+              <ProfileImage />
             </View>
-            <Text style={styles.menuTitle}>{item.title}</Text>
-            <Icon name="chevron-forward-outline" size={24} color="#6F7A8A" />
-          </TouchableOpacity>
-        ))}
+
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{name}</Text>
+              <View style={styles.verifiedBadge}>
+                <MaterialCommunityIcons
+                  name="check-decagram"
+                  size={14}
+                  color="#4A55A2"
+                />
+                <Text style={styles.verifiedText}>Verified</Text>
+              </View>
+              <Text style={styles.profileContact}>{email}</Text>
+            </View>
+          </View>
+
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>
+                {totalOrders ? totalOrders : 0}
+              </Text>
+              <Text style={styles.statLabel}>Orders</Text>
+            </View>
+            <View style={[styles.statItem, styles.statDivider]}>
+              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statLabel}>Reviews</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>Ksh.0</Text>
+              <Text style={styles.statLabel}>Savings</Text>
+            </View>
+          </View>
+        </LinearGradient>
+
+        {/* Premium Banner Card */}
+        <TouchableOpacity
+          style={styles.premiumBanner}
+          activeOpacity={0.9}
+          onPress={() => router.push("/screens/premium")}
+        >
+          <LinearGradient
+            colors={["#FFB347", "#FFCC33"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.premiumGradient}
+          >
+            <Animated.View
+              style={[styles.premiumIconContainer, crownAnimation]}
+            >
+              <FontAwesome5 name="crown" size={20} color="#fff" />
+            </Animated.View>
+
+            <View style={styles.premiumTextContainer}>
+              <Text style={styles.premiumTitle}>Upgrade to Premium</Text>
+              <Text style={styles.premiumSubtitle}>
+                Unlock exclusive benefits and features
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.premiumButton}>
+              <Text style={styles.premiumButtonText}>Upgrade</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Menu Options */}
+        <View style={styles.menuContainer}>
+          <Text style={styles.menuSectionTitle}>Account</Text>
+
+          {menuItems.slice(0, 2).map((item, index) => (
+            <TouchableOpacity
+              key={item.title}
+              style={[styles.menuItem, index === 2 && styles.lastItem]}
+              onPress={() => router.push(item.url)}
+            >
+              <View
+                style={[
+                  styles.menuIconContainer,
+                  { backgroundColor: item.bgColor },
+                ]}
+              >
+                <Ionicons name={item.icon} size={18} color={item.iconColor} />
+              </View>
+              <Text style={styles.menuTitle}>{item.title}</Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={22}
+                color="#B0B7C1"
+              />
+            </TouchableOpacity>
+          ))}
+
+          <Text style={styles.menuSectionTitle}>Preferences</Text>
+
+          {menuItems.slice(2).map((item, index) => (
+            <TouchableOpacity
+              key={item.title}
+              style={[
+                styles.menuItem,
+                index === menuItems.slice(3).length - 1 && styles.lastItem,
+              ]}
+              onPress={() => router.push(item.url)}
+            >
+              <View
+                style={[
+                  styles.menuIconContainer,
+                  { backgroundColor: item.bgColor },
+                ]}
+              >
+                <Ionicons name={item.icon} size={18} color={item.iconColor} />
+              </View>
+              <Text style={styles.menuTitle}>{item.title}</Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={22}
+                color="#B0B7C1"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <TouchableOpacity style={styles.aboutButton}>
+          <Link href="/screens/PolicyScreen?type=about">
+            <MaterialCommunityIcons
+              name="information-outline"
+              size={20}
+              color="#e0e0e0"
+            />
+            <Text style={styles.aboutText}>About</Text>
+            <Text style={styles.aboutText}>V1.1.0.0</Text>
+          </Link>
+        </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const menuItems = [
-  { title: 'Account Details', icon: 'person-outline',url:'/screens/account' },
-  { title: 'My Orders', icon: 'receipt-outline',url:'/screens/account' },
-  { title: 'Settings', icon: 'settings-outline',url:'/screens/setting' },
-  { title: 'Help Center', icon: 'help-circle-outline',url:'/screens/help' },
-  { title: 'Language', icon: 'language-outline',url:'/screens/account' },
-  { title: 'Invite Friends', icon: 'people-outline',url:'/screens/account' },
+  {
+    title: "Account Details",
+    icon: "person-outline",
+    url: "/screens/account",
+    bgColor: "rgba(74, 85, 162, 0.1)",
+    iconColor: "#4A55A2",
+  },
+  {
+    title: "My Orders",
+    icon: "receipt-outline",
+    url: "/screens/orders",
+    bgColor: "rgba(76, 175, 80, 0.1)",
+    iconColor: "#4CAF50",
+  },
+  // {
+  //   title: 'Payment Methods',
+  //   icon: 'card-outline',
+  //   url: '/screens/payment',
+  //   bgColor: 'rgba(255, 152, 0, 0.1)',
+  //   iconColor: '#FF9800'
+  // },
+  {
+    title: "Settings",
+    icon: "settings-outline",
+    url: "/screens/setting",
+    bgColor: "rgba(158, 158, 158, 0.1)",
+    iconColor: "#616161",
+  },
+  {
+    title: "Help Center",
+    icon: "help-circle-outline",
+    url: "/screens/help",
+    bgColor: "rgba(3, 169, 244, 0.1)",
+    iconColor: "#03A9F4",
+  },
+  {
+    title: "Invite Friends",
+    icon: "people-outline",
+    url: "/screens/invite",
+    bgColor: "rgba(156, 39, 176, 0.1)",
+    iconColor: "#9C27B0",
+  },
 ];
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+  },
   container: {
+    flex: 1,
+    marginBottom: 80,
+  },
+  profileHeader: {
+    paddingTop: 30,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  profileContent: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
+  profileImageWrapper: {
+    position: "relative",
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
+  editIconContainer: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
   },
-  profileContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
+  editButton: {
+    backgroundColor: "#4A55A2",
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
   },
-  
-  premiumBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: color.green,
+  profileInfo: {
+    marginLeft: 15,
+  },
+  profileName: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  verifiedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginBottom: 6,
+  },
+  verifiedText: {
+    color: "#4A55A2",
+    fontSize: 12,
+    fontWeight: "600",
+    marginLeft: 3,
+  },
+  profileContact: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 14,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    marginTop: 20,
+    marginHorizontal: 20,
+    borderRadius: 16,
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statDivider: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  statNumber: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  statLabel: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 12,
+    marginTop: 3,
+  },
+  premiumBanner: {
+    margin: 20,
+    borderRadius: 16,
+    elevation: 5,
+    shadowColor: "#FFB347",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  premiumGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 16,
+    padding: 16,
   },
   premiumIconContainer: {
-    backgroundColor: '#FF8C00',
-    padding: 10,
-    borderRadius: 25,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    width: 42,
+    height: 42,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
   },
   premiumTextContainer: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 15,
   },
   premiumTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: "#fff",
+    fontSize: 17,
+    fontWeight: "bold",
   },
   premiumSubtitle: {
-    color: '#fff',
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    marginTop: 3,
+  },
+  premiumButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+  },
+  premiumButtonText: {
+    color: "#FF9800",
+    fontWeight: "600",
     fontSize: 12,
   },
   menuContainer: {
-    marginTop: 10,
+    marginHorizontal: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  menuSectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#7895CB",
+    marginLeft: 10,
+    marginTop: 12,
+    marginBottom: 8,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    marginHorizontal: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: "#f0f0f0",
+  },
+  lastItem: {
+    borderBottomWidth: 0,
+    marginBottom: 8,
   },
   menuIconContainer: {
-    marginRight: 15,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginRight: 12,
   },
   menuTitle: {
     flex: 1,
+    fontSize: 15,
+    color: "#333",
+    fontWeight: "500",
+  },
+  aboutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 20,
+    marginTop: 20,
+    backgroundColor: "#fff",
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#FFDFDF",
+  },
+  aboutText: {
+    marginLeft: 8,
+    color: "#e0e0e0",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: color.graywhite,
+  },
+  loadingText: {
+    marginTop: 10,
     fontSize: 16,
-    color: '#6F7A8A',
+    color: color.black,
   },
 });
 
-export default Container;
+export default ProfileContainer;
