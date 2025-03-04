@@ -3,8 +3,8 @@ import {
   StyleSheet,
 } from "react-native";
 import React from "react";
-import Card from "@/components/Card";
 import { useRouter } from "expo-router";
+import Card from "./Card";
 
 export default function RestaurantsList({ data, scrollViewRef, cardWidth }) {
   const route = useRouter();
