@@ -1,11 +1,13 @@
 import { createReservation, userCancelReservation } from '@/api/api';
 import { Reservation, ReservationResponse, userCancelReservationParams } from '@/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 
 interface ReservationParams {
-  restaurantId: string;
+  restaurantId: string;     
   userId: string;
+  fcmToken:string;
   data: Reservation;
 }
 
@@ -17,13 +19,16 @@ interface UseCreateReservationOptions {
 
 export const useCreateReservation = (options?: UseCreateReservationOptions) => {
   return useMutation({
-    mutationFn: ({ userId, restaurantId, data }: ReservationParams) =>
-      createReservation(userId, restaurantId, data),
+    mutationFn: ({ userId, restaurantId, fcmToken,data }: ReservationParams) =>
+      createReservation(userId, restaurantId,fcmToken, data),
     onSuccess: (data) => {
       // Call the success callback if provided
       if (options?.onSuccess) {
         options.onSuccess(data);
+        AsyncStorage.setItem("reservationData",JSON.stringify(data))
+        console.log("reservation hook datat",data)
       }
+
     },
     onError: (error: Error) => {
       console.error('Failed to create reservation:', error);
@@ -43,6 +48,7 @@ export function userCancellationReservation() {
           type: 'success',
           text1: 'Reservation cancelled',
         });
+        AsyncStorage.removeItem("reservationData")
     },
     onError: (error) => {
       // Handle errors
