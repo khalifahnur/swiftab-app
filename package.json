@@ -27,7 +27,6 @@
     "@react-navigation/material-top-tabs": "^7.1.0",
     "@react-navigation/native": "^7.0.14",
     "@reduxjs/toolkit": "^2.5.1",
-    "@rnmapbox/maps": "^10.1.33",
     "@shopify/flash-list": "1.7.3",
     "@tanstack/react-query": "^5.66.0",
     "axios": "^1.7.9",
@@ -62,6 +61,7 @@
     "react-native-gesture-handler": "~2.20.2",
     "react-native-hole-view": "^3.0.0-alpha4",
     "react-native-international-phone-number": "^0.9.0",
+    "react-native-maps": "1.14.0",
     "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-pager-view": "6.5.1",
     "react-native-permissions": "^5.2.5",
@@ -78,7 +78,8 @@
     "react-native-webview": "13.12.5",
     "react-redux": "^9.2.0",
     "yup": "^1.6.1",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "expo-dev-client": "~5.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
