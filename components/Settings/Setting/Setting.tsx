@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, Image } from "react-native";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   Ionicons,
@@ -20,9 +20,17 @@ import MpesaModal from "./MpesaModal";
 import { LinearGradient } from "expo-linear-gradient";
 import Header from "../Header";
 
+interface UserData {
+  email: string;
+  name: string;
+  phoneNumber: string;
+  userId: string;
+}
+
 export default function Setting() {
   const router = useRouter();
   const navigation = useNavigation();
+  const [userData, setUserData] = useState<UserData>({} as UserData);
 
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -71,6 +79,22 @@ export default function Setting() {
     setMpesaModal(false);
   };
 
+  const { name, email } = userData;
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const userObj = JSON.parse(
+            (await AsyncStorage.getItem("userObj")) || "{}"
+          );
+          setUserData(userObj.user);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+      fetchData();
+    }, []);
+
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
@@ -106,8 +130,8 @@ export default function Setting() {
                 defaultSource={require('@/assets/images/user.jpeg')}
               />
             </View>
-            <Text style={styles.profileName}>John Doe</Text>
-            <Text style={styles.profileEmail}>john.doe@example.com</Text>
+            <Text style={styles.profileName}>{name}</Text>
+            <Text style={styles.profileEmail}>{email}</Text>
           </View>
 
           <Text style={styles.sectionTitle}>Preferences</Text>
@@ -174,7 +198,10 @@ export default function Setting() {
           {/* Log Out */}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => setModalVisible(true)}
+            onPress={() => 
+              //setModalVisible(true)
+              LogOutHandler
+              }
           >
             <MaterialIcons name="logout" size={20} color="#FFFFFF" />
             <Text style={styles.logoutText}>Log Out</Text>

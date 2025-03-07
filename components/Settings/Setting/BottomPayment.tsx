@@ -32,11 +32,12 @@ export default function BottomPayment({ visibleModal,closeModal }: BottomProps) 
   ];
 
   const handleContinue = () => {
-    if (selectedMethod === "mpesa") {
-      visibleModal();
-    } else {
-      alert(`Selected payment method: ${selectedMethod}`);
-    }
+    // if (selectedMethod === "mpesa") {
+    //   visibleModal();
+    // } else {
+    //   alert(`Selected payment method: ${selectedMethod}`);
+    // }
+    closeModal()
   };
 
   return (

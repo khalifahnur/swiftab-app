@@ -9,7 +9,7 @@ type bottomProps = {
 export default function BottomModal({logOutHandle}:bottomProps) {
   
   return (
-    <BottomSheet snapPoints={[200]}>
+    <BottomSheet snapPoints={[400]} enablePanDownToClose handleIndicatorStyle={{ backgroundColor: color.green }}>
       <BottomSheetView style={styles.container}>
         <Text style={{color:'#000',fontSize:16,fontWeight:'600'}}>Logout</Text>
         <View style={styles.divider} />
