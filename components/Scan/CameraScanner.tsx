@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Alert, Modal, SafeAreaView, View, StyleSheet} from 'react-native';
+import {Alert, Modal, SafeAreaView, View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {RNHoleView} from 'react-native-hole-view';
 import {
   Camera,
@@ -11,6 +11,7 @@ import {useIsFocused} from '@react-navigation/native';
 import {getWindowHeight, getWindowWidth, isIos} from '@/lib/helpers';
 import {useAppStateListener} from '../../hooks/useAppStateListener';
 import {ICameraScannerProps} from '@/types';
+import {Ionicons} from '@expo/vector-icons';
 
 export const CameraScanner = ({
   setIsCameraShown,
@@ -24,6 +25,15 @@ export const CameraScanner = ({
   const [flash, setFlash] = useState<'on' | 'off'>(isIos ? 'off' : 'on');
   const {appState} = useAppStateListener();
   const [codeScanned, setCodeScanned] = useState('');
+
+  // Calculate hole dimensions with integer values to avoid precision errors
+  const windowWidth = getWindowWidth();
+  const windowHeight = getWindowHeight();
+  
+  const holeX = Math.floor(windowWidth * 0.1);
+  const holeY = Math.floor(windowHeight * 0.28);
+  const holeWidth = Math.floor(windowWidth * 0.8);
+  const holeHeight = Math.floor(windowHeight * 0.4);
 
   useEffect(() => {
     if (codeScanned) {
@@ -67,6 +77,10 @@ export const CameraScanner = ({
     setIsCameraShown(false);
   };
 
+  const toggleFlash = () => {
+    setFlash(prev => (prev === 'on' ? 'off' : 'on'));
+  };
+
   const onError = (error: CameraRuntimeError) => {
     Alert.alert('Error!', error.message);
   };
@@ -79,7 +93,25 @@ export const CameraScanner = ({
     return (
       <SafeAreaView style={styles.safeArea}>
         <Modal presentationStyle="fullScreen" animationType="slide">
-          <View style={[styles.cameraControls, {backgroundColor: undefined}]} />
+          <View style={styles.cameraControls}>
+            <TouchableOpacity 
+              style={styles.icon} 
+              onPress={onCrossClick}
+            >
+              <Ionicons name="close" size={28} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.icon}
+              onPress={toggleFlash}
+            >
+              <Ionicons 
+                name={flash === 'on' ? "flash" : "flash-off"} 
+                size={24} 
+                color="white" 
+              />
+            </TouchableOpacity>
+          </View>
+          
           <Camera
             torch={flash}
             onInitialized={onInitialized}
@@ -96,23 +128,31 @@ export const CameraScanner = ({
               isCameraInitialized
             }
           />
+          
           <RNHoleView
             holes={[
               {
-                x: getWindowWidth() * 0.1,
-                y: getWindowHeight() * 0.28,
-                width: getWindowWidth() * 0.8,
-                height: getWindowHeight() * 0.4,
+                x: holeX,
+                y: holeY,
+                width: holeWidth,
+                height: holeHeight,
                 borderRadius: 10,
               },
             ]}
             style={[styles.rnholeView, styles.fullScreenCamera]}
           />
+          
+          <View style={styles.scanInstructions}>
+            <Text style={styles.scanText}>Position QR code within frame</Text>
+          </View>
         </Modal>
       </SafeAreaView>
     );
   }
+  
+  return null;
 };
+
 const styles = StyleSheet.create({
   safeArea: {
     position: 'absolute',
@@ -137,7 +177,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   cameraControls: {
-    height: '10%',
+    height: 60,
     top: 15,
     position: 'absolute',
     flexDirection: 'row',
@@ -153,5 +193,23 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  scanInstructions: {
+    position: 'absolute',
+    bottom: 80,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  scanText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
   },
 });
