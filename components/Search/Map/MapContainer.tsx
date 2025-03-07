@@ -1,53 +1,22 @@
-// MapContainer.js
-import React, { useRef } from "react";
-import { StyleSheet, useWindowDimensions, View } from "react-native";
-import Mapbox, {
-  Camera,
-  UserLocation,
-  MapView,
-  ShapeSource,
-  SymbolLayer,
-  Images,
-  CircleLayer,
-} from "@rnmapbox/maps";
-import { color } from "@/constants/Colors";
+import React, { useRef, useEffect, useState } from "react";
+import { StyleSheet, useWindowDimensions, View, Image, Text, Dimensions } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE, Callout } from "react-native-maps";
 import RestaurantsList from "./RestaurantsList";
 import SearchComponent from "./SearchComponent";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_KEY || "");
-
-export default function MapContainer({
-  restaurantsData,
-  userLocation,
-  displayAddress,
-}) {
+export default function MapContainer({ restaurantsData, userLocation, displayAddress }) {
   const pin = require("../../../assets/images/pin.png");
   const ref = useRef(null);
+  const mapRef = useRef(null);
   const window = useWindowDimensions();
   const CARD_WIDTH = window.width * 0.75;
+  const [mapReady, setMapReady] = useState(false);
 
-  const AvailableRes = {
-    type: "FeatureCollection",
-    features: restaurantsData.flatMap((item) =>
-      item.data.map((restaurant) => ({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [restaurant.longitude, restaurant.latitude],
-        },
-        properties: {
-          id: restaurant._id,
-          name: restaurant.restaurantName,
-          description: restaurant.location,
-        },
-      }))
-    ),
-  };
+  // Flatten restaurants data for easier access
+  const allRestaurants = restaurantsData.flatMap((section) => section.data);
 
-  const HandlePress = (id) => {
-    const restaurants = restaurantsData.flatMap((section) => section.data);
-    const index = restaurants.findIndex((item) => item._id === id);
+  const handleMarkerPress = (restaurant) => {
+    const index = allRestaurants.findIndex((item) => item._id === restaurant._id);
 
     if (ref.current && index !== -1) {
       const offset = index * CARD_WIDTH;
@@ -55,37 +24,57 @@ export default function MapContainer({
     }
   };
 
+  // Center map on user location when component mounts
+  useEffect(() => {
+    if (mapReady && mapRef.current && userLocation) {
+      mapRef.current.animateToRegion({
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+    }
+  }, [userLocation, mapReady]);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+
       <View style={styles.search}>
         <SearchComponent placeholderTxt={displayAddress} />
       </View>
 
-      <MapView style={styles.map}>
-        <Camera
-          zoomLevel={12}
-          centerCoordinate={[userLocation.longitude, userLocation.latitude]}
-        />
-        <UserLocation visible={true} showsUserHeadingIndicator={true} />
-
-        <ShapeSource
-          id="restaurants"
-          cluster
-          shape={AvailableRes}
-          onPress={(e) => HandlePress(e.features?.[0]?.properties?.id)}
-        >
-          <CircleLayer id="cluster" style={{ circleColor: color.green }} />
-          <SymbolLayer
-            id="restaurants-icons"
-            style={{
-              iconImage: "pin",
-              iconAllowOverlap: true,
-              iconSize: 0.08,
-              iconAnchor: "bottom",
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        provider={PROVIDER_GOOGLE}
+        showsUserLocation
+        showsMyLocationButton
+        initialRegion={{
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+        onMapReady={() => setMapReady(true)}
+      >
+        {allRestaurants.map((restaurant) => (
+          <Marker
+            key={restaurant._id}
+            coordinate={{
+              latitude: restaurant.latitude,
+              longitude: restaurant.longitude,
             }}
-          />
-          <Images images={{ pin }} />
-        </ShapeSource>
+            onPress={() => handleMarkerPress(restaurant)}
+          >
+            <Image source={pin} style={styles.markerImage} />
+            <Callout>
+              <View style={styles.callout}>
+                <Text style={styles.calloutTitle}>{restaurant.restaurantName}</Text>
+                <Text style={styles.calloutDescription}>{restaurant.location}</Text>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
 
       <View style={styles.res}>
@@ -95,7 +84,7 @@ export default function MapContainer({
           cardWidth={CARD_WIDTH}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -120,6 +109,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     zIndex: 1,
-    backgroundColor:'transparent'
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
+  markerImage: {
+    width: 30,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  callout: {
+    width: 200,
+    padding: 10,
+  },
+  calloutTitle: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  calloutDescription: {
+    fontSize: 12,
+  }
 });
