@@ -37,39 +37,6 @@ messaging().onMessage(async (remoteMessage) => {
   }
 });
 
-
-//   useEffect(() => {
-//     registerForPushNotifications();
-
-//     // Foreground notification listener
-//     notificationListener.current = Notifications.addNotificationReceivedListener(
-//       (notification) => {
-//         setNotification(notification);
-//         console.log('Received notification:', notification);
-//       }
-//     );
-
-//     // Notification interaction listener
-//     responseListener.current = Notifications.addNotificationResponseReceivedListener(
-//       (response) => {
-//         console.log('Notification response:', response);
-//       }
-//     );
-
-//     // Background handler
-//     messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-//       console.log('Background message:', remoteMessage);
-//     });
-
-//     return () => {
-//       if (notificationListener.current) {
-//         Notifications.removeNotificationSubscription(notificationListener.current);
-//       }
-//       if (responseListener.current) {
-//         Notifications.removeNotificationSubscription(responseListener.current);
-//       }
-//     };
-//   }, []);
 useEffect(() => {
     registerForPushNotifications();
   
