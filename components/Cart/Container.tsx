@@ -185,7 +185,7 @@ export default function Container() {
             style={styles.closeButton}
             onPress={() => router.replace("/(tabs)")}
           >
-            <AntDesign name="close" size={20} color="#fff" />
+            <AntDesign name="close" size={20} color="#000" />
           </Pressable>
           <View
             style={{
@@ -375,9 +375,12 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    right: 15,
-    top: 15,
-    zIndex: 1,
+    right: 25,
+    top: 50,
+    zIndex:999,
+    padding:10,
+    backgroundColor:'#fff',
+    borderRadius:20
   },
   qrContainer: {
     marginTop: 20,
