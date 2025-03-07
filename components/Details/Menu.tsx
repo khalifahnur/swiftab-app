@@ -40,7 +40,7 @@ const Menu: React.FC<MenuProps> = ({ menu,restaurantId }) => {
       <View style={styles.menuList}>
         {menuTypes.map((menuType, index) => {
           const items = menu[menuType];
-          const image = imageButtons[index]?.image || require("../../assets/images/menu/notfound.png");
+          const image = imageButtons[index]?.image || require("../../assets/images/menu/notfound.jpeg");
 
           return (
             items.length > 0 && (
