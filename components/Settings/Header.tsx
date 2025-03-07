@@ -4,9 +4,13 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { color } from "@/constants/Colors";
 
-export default function Header({HeaderTitle}:string) {
+type prop = {
+  HeaderTitle:string;
+  marginVertical?:number | 16;
+}
+export default function Header({HeaderTitle,marginVertical}:prop) {
   return (
-    <View style={styles.header}>
+    <View style={[styles.header,{marginVertical}]}>
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={20} color={color.green} />
       </TouchableOpacity>
@@ -20,8 +24,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 16,
     justifyContent: "space-between",
+    zIndex:999
   },
   title: {
     fontSize: 20,
