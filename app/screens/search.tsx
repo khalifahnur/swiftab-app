@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchNearMeRes } from '@/api/api'
 import LottieView from 'lottie-react-native'
 import { color } from '@/constants/Colors'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface LocationType {
   latitude: number | null;
@@ -91,14 +92,14 @@ export default function SearchScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={color.green} style='auto'/>
       <MapContainer 
         restaurantsData={transformedData}
         userLocation={location}
         displayAddress={displayAddress}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 
