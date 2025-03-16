@@ -163,7 +163,6 @@ export default function Container() {
           {tabs.map((tab, index) => (
             <Pressable
               key={index}
-              onPress={() => setSelectedTab(tab)}
               style={[
                 styles.tabButton,
                 selectedTab === tab && styles.tabSelected,
