@@ -9,6 +9,7 @@ import { fetchNearMeRes } from '@/api/api'
 import LottieView from 'lottie-react-native'
 import { color } from '@/constants/Colors'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Constants from "expo-constants";
 
 interface LocationType {
   latitude: number | null;
@@ -38,26 +39,56 @@ export default function SearchScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== 'granted') {
-          alert('Location permission denied')
-          return
+        // Request location permission
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          alert("Location permission denied");
+          setDisplayAddress("Permission denied");
+          return;
         }
 
-        const { coords } = await Location.getCurrentPositionAsync()
-        setLocation({ latitude: coords.latitude, longitude: coords.longitude })
+        // Get high-accuracy location
+        const { coords } = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Highest,
+        });
+        const newLocation = { latitude: coords.latitude, longitude: coords.longitude };
+        setLocation(newLocation);
 
-        const address = await Location.reverseGeocodeAsync(coords)
-        setDisplayAddress(
-          `${address[0].name} ${address[0].city} ${address[0].postalCode}`
-        )
-      } catch (err) {
-        alert('Error getting location')
+        const address = await Location.reverseGeocodeAsync(newLocation);
+        if (address.length > 0) {
+          const { name, street, city, region, postalCode, country } = address[0];
+          const formattedAddress = [
+            name || street, 
+            city || region, 
+            postalCode,
+            country,
+          ]
+            .filter(Boolean)
+            .join(", ");
+          setDisplayAddress(formattedAddress || "Unknown location");
+        } else {
+          setDisplayAddress("No address found");
+        }
+
+        const googleApiKey = Constants.expoConfig?.extra?.googleMapsApiKey;
+        if (googleApiKey) {
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.latitude},${coords.longitude}&key=${googleApiKey}`
+          );
+          const data = await response.json();
+          if (data.status === "OK" && data.results.length > 0) {
+            setDisplayAddress(data.results[0].formatted_address);
+          }
+        }
+      } catch (err: any) {
+        console.error("Location Error:", err);
+        alert("Error getting location");
+        setDisplayAddress("Error fetching address");
       } finally {
-        setIsFetchingLocation(false)
+        setIsFetchingLocation(false);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   const transformedData = Array.isArray(data)
     ? data.map((item) => ({
