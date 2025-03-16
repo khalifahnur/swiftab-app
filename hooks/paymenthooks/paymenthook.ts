@@ -30,7 +30,7 @@ export function usePaymentHook() {
         type: "success",
         text1: "Wait for mpesa sdk push menu to enter M-pesa pin",
       });
-      router.push("/(tabs)/");
+      router.push("/(tabs)");
     },
     onError: (error) => {
       // Handle errors

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { Camera } from "react-native-vision-camera";
-import * as Notifications from "expo-notifications";
-import messaging from '@react-native-firebase/messaging';
+//import * as Notifications from "expo-notifications";
+//import messaging from '@react-native-firebase/messaging';
 
 export const useAppPermissions = () => {
   const [permissions, setPermissions] = useState({
     location: false,
     camera: false,
-    notifications: false,
-    firebaseMessaging: false
+    //notifications: false,
+    //firebaseMessaging: false
   });
 
   useEffect(() => {
@@ -29,33 +29,33 @@ export const useAppPermissions = () => {
         }
 
         // Expo notifications permission
-        let hasNotificationPermission = false;
-        const { status: notifStatus } = await Notifications.getPermissionsAsync();
-        if (notifStatus !== "granted") {
-          const { status } = await Notifications.requestPermissionsAsync();
-          hasNotificationPermission = status === "granted";
-        } else {
-          hasNotificationPermission = true;
-        }
+        // let hasNotificationPermission = false;
+        // const { status: notifStatus } = await Notifications.getPermissionsAsync();
+        // if (notifStatus !== "granted") {
+        //   const { status } = await Notifications.requestPermissionsAsync();
+        //   hasNotificationPermission = status === "granted";
+        // } else {
+        //   hasNotificationPermission = true;
+        // }
 
         // Firebase messaging permission
-        let hasFirebasePermission = false;
-        const authStatus = await messaging().requestPermission();
-        hasFirebasePermission = 
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        // let hasFirebasePermission = false;
+        // const authStatus = await messaging().requestPermission();
+        // hasFirebasePermission = 
+        //   authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        //   authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-        // Update state
-        setPermissions({
-          location: hasLocationPermission,
-          camera: hasCameraPermission,
-          notifications: hasNotificationPermission,
-          firebaseMessaging: hasFirebasePermission
-        });
+        // // Update state
+        // setPermissions({
+        //   location: hasLocationPermission,
+        //   camera: hasCameraPermission,
+        //   notifications: hasNotificationPermission,
+        //   firebaseMessaging: hasFirebasePermission
+        // });
 
-        if (!hasNotificationPermission || !hasFirebasePermission) {
-          alert("Please enable notifications in settings!");
-        }
+        // if (!hasNotificationPermission || !hasFirebasePermission) {
+        //   alert("Please enable notifications in settings!");
+        // }
       } catch (error) {
         console.error("Permission error:", error);
       }
