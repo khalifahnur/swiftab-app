@@ -8,18 +8,13 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
-import Search from "./Search";
+import { Ionicons } from "@expo/vector-icons";
 import { color } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store/Store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// type headerProps = {
-//   headerLayout:(event: LayoutChangeEvent) => void;
-//   //marginBottomPosition:number;
-// }
 
 export default function Header() {
   const [greeting, setGreeting] = useState<string>("");
@@ -129,6 +124,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    borderBottomEndRadius:20,
+    borderBottomStartRadius:20
   },
   greeting: {
     color: "#fff",

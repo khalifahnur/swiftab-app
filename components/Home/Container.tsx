@@ -1,19 +1,10 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, View, ScrollView } from "react-native";
 import Header from "./Header";
 import { RestaurantData } from "@/types";
-import NewSubHeader from "./NewSubHeader";
 import Restaurants from "./Restaurants";
 import Cuisine from "./Cuisine";
+import Promotions from "./Promotions";
 
 interface Section {
   title: string;
@@ -46,21 +37,7 @@ const Container = ({
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Special Offer Card */}
-        <View style={styles.offerCard}>
-          <View>
-            <Text style={styles.offerText}>Get special offer</Text>
-            <Text style={styles.offerSubtext}>up to</Text>
-            <Text style={styles.offerPercentage}>30%</Text>
-            <TouchableOpacity style={styles.bookButton}>
-              <Text style={styles.bookButtonText}>Book Now</Text>
-            </TouchableOpacity>
-          </View>
-          <Image
-            source={{ uri: "https://placeholder.com/food" }}
-            style={styles.offerImage}
-          />
-        </View>
-
+        <Promotions />
         <Restaurants title="New Restaurant" data={allRestaurants} />
 
         <Restaurants title="Recommended Restaurants" data={allRestaurants} />
