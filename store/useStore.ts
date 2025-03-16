@@ -41,7 +41,6 @@ const useStore = create<StoreState>((set) => ({
 
   selectedFloorTxt: "",
   setSelectedFloorTxt: (floor) => {
-    console.log("Updating selectedFloorTxt:", floor); 
     set((state) => ({
       ...state,
       selectedFloorTxt: floor,

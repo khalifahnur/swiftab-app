@@ -1,13 +1,12 @@
-import React, {  useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Animated,
+  ScrollView,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import useStore from "@/store/useStore";
 import Two from "./Chairs/Two";
 import RecFour from "@/components/Reserve/ReserveScreen/RectangleTables/RecFour";
@@ -50,36 +49,18 @@ export interface LayoutData {
   tablePosition: TablePosition[];
 }
 
-const { width: screenWidth } = Dimensions.get("window");
-
-
 export default function TableTab({
   availableTables,
   diningAreas,
   tablePosition,
 }: LayoutData) {
-  const [selectedFloor, setSelectedFloor] = useState("1");
   const { selectedFloorTxt, setSelectedFloorTxt } = useStore();
-  const animation = useRef(new Animated.Value(0)).current;
 
-  const handlePress = (index: number, floor: string) => {
-    setSelectedFloor((index + 1).toString());
-  
-    Animated.spring(animation, {
-      toValue: index,
-      friction: 2,
-      tension: 10,
-      useNativeDriver: true,
-    }).start(() => {
-      setSelectedFloorTxt(floor); // Update Zustand state after animation
-    });
-  };
-
-  const translateX = animation.interpolate({
-    inputRange: diningAreas.map((_, i) => i), // [0, 1, 2, ...]
-    outputRange: diningAreas.map((_, i) => i * (screenWidth / diningAreas.length)), // [0, tabWidth, 2 * tabWidth, ...]
-  });
-
+  useEffect(() => {
+    if (diningAreas.length > 0 && !selectedFloorTxt) {
+      setSelectedFloorTxt(diningAreas[0]);
+    }
+  }, [diningAreas]);
 
   const isTableAvailable = (tableName: string) => {
     if (!availableTables || !Array.isArray(availableTables.availability))
@@ -89,11 +70,19 @@ export default function TableTab({
     );
   };
 
-  const TablesArrangement = useMemo(
-    () =>
-      tablePosition.map((item) => {
+  const TablesArrangement = useMemo(() => {
+    if (!tablePosition || !selectedFloorTxt) return null;
+
+    const floorIndex = diningAreas.findIndex(
+      (area) => area === selectedFloorTxt
+    );
+    const selectedFloorId = (floorIndex + 1).toString();
+
+    return tablePosition
+      .filter((item) => item.floorId === selectedFloorId)
+      .map((item) => {
         const totalChairs = item.chairs.length;
-        if (item.shape === "rectangle" && item.floorId == selectedFloor) {
+        if (item.shape === "rectangle") {
           switch (totalChairs) {
             case 2:
               return <Two key={item.id} />;
@@ -108,7 +97,7 @@ export default function TableTab({
             default:
               return null;
           }
-        } else if (item.shape === "round" && item.floorId == selectedFloor) {
+        } else if (item.shape === "round") {
           switch (totalChairs) {
             case 2:
               return <Two key={item.id} />;
@@ -126,67 +115,71 @@ export default function TableTab({
         } else {
           return null;
         }
-      }),
-    [tablePosition, selectedFloor]
-  );
+      });
+  }, [tablePosition, selectedFloorTxt, availableTables]);
+
+  const handleTabPress = (floor: string) => {
+    setSelectedFloorTxt(floor);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.floorSelector}>
-        <LinearGradient
-          colors={["#ffffff", "#f0f0f0"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.background}
-        >
-          {diningAreas.map((area, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.floorButton,
-                selectedFloor === (index + 1).toString() &&
-                  styles.selectedFloor,
-              ]}
-              onPress={() => handlePress(index, area)}
-            >
-              <Text
-                style={[
-                  styles.floorText,
-                  selectedFloor === (index + 1).toString() &&
-                    styles.selectedFloorText,
-                ]}
-              >
-                {area}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          <Animated.View
-            style={[
-              styles.indicator,
-              {
-                width: `${100 / diningAreas.length}%`,
-                transform: [{ translateX }],
-              },
-            ]}
-          />
-        </LinearGradient>
-      </View>
-      <View style={styles.legend}>
-        {["Reserved", "Available", "Selected"].map((item) => (
-          <View key={item} style={styles.legendItem}>
-            {item === "Reserved" ? (
-              <Text style={styles.legendTxt}>🔴</Text>
-            ) : item === "Available" ? (
-              <Text style={styles.legendTxt}>🟢</Text>
-            ) : (
-              <Text style={styles.legendTxt}>🔵</Text>
-            )}
-            <Text style={styles.legendTxt}>{item}</Text>
-          </View>
-        ))}
+      <View style={styles.header}>
+        <Text style={styles.title}>Select Table</Text>
       </View>
 
-      <View style={styles.floorPlan}>{TablesArrangement}</View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabsContainer}
+      >
+        {diningAreas.map((area, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.tab,
+              selectedFloorTxt === area && styles.selectedTab,
+            ]}
+            onPress={() => handleTabPress(area)}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                selectedFloorTxt === area && styles.selectedTabText,
+              ]}
+            >
+              {area}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <View style={styles.legendContainer}>
+        <View style={styles.legend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, styles.reservedDot]} />
+            <Text style={styles.legendText}>Reserved</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, styles.availableDot]} />
+            <Text style={styles.legendText}>Available</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, styles.selectedDot]} />
+            <Text style={styles.legendText}>Selected</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.infoContainer}>
+        <Ionicons name="information-circle-outline" size={16} color="#666" />
+        <Text style={styles.infoText}>Tap on a table to select it</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.floorPlanContainer}>
+        <View style={styles.floorPlan}>{TablesArrangement}</View>
+      </ScrollView>
     </View>
   );
 }
@@ -194,72 +187,101 @@ export default function TableTab({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7f8f8",
+    backgroundColor: "#ffffff",
+  },
+  header: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    textAlign: "center",
+  },
+  tabsContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginRight: 10,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
+    borderWidth: 1,
+    borderColor: "#eaeaea",
+  },
+  selectedTab: {
+    backgroundColor: "#3498db",
+    borderColor: "#2980b9",
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#666",
+  },
+  selectedTabText: {
+    color: "#ffffff",
+    fontWeight: "600",
+  },
+  legendContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
   legend: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginBottom: 5,
+    justifyContent: "space-around",
   },
   legendItem: {
-    gap: 5,
     flexDirection: "row",
-  },
-  legendTxt: {
-    fontSize: 12,
-  },
-  floorSelector: {
-    borderRadius: 25,
-    overflow: "hidden",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    marginBottom: 5,
-  },
-  background: {
-    flexDirection: "row",
-    borderRadius: 25,
-    padding: 4,
-  },
-  floorButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 25,
-    backgroundColor: "transparent",
   },
-  selectedFloor: {
-    backgroundColor: "transparent",
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 6,
   },
-  floorText: {
+  reservedDot: {
+    backgroundColor: "#ff4d4d",
+  },
+  availableDot: {
+    backgroundColor: "#4cd964",
+  },
+  selectedDot: {
+    backgroundColor: "#007aff",
+  },
+  legendText: {
+    fontSize: 12,
+    color: "#555",
+  },
+  infoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  infoText: {
+    fontSize: 12,
     color: "#666",
-    fontSize: 8,
-    textAlign: "justify",
-    fontWeight: "500",
+    marginLeft: 4,
   },
-  selectedFloorText: {
-    color: "#3498db",
-    fontWeight: "bold",
-  },
-  indicator: {
-    position: "absolute",
-    bottom: 4,
-    height: 3,
-    backgroundColor: "#3498db",
-    borderRadius: 2,
-    zIndex: 1,
+  floorPlanContainer: {
+    padding: 16,
   },
   floorPlan: {
-    flex: 1,
-    backgroundColor: "rgba(254, 255, 254, 0.1)",
-    height: 600,
-    width: "100%",
+    backgroundColor: "#f9f9f9",
+    borderRadius: 12,
+    padding: 16,
+    minHeight: 400,
     flexDirection: "row",
     justifyContent: "space-evenly",
     flexWrap: "wrap",
+    borderWidth: 1,
+    borderColor: "#eaeaea",
   },
 });

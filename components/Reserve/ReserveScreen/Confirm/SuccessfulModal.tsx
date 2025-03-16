@@ -24,8 +24,6 @@ const SuccessModal: React.FC<SuccessModalProps> = ({visible, handleModalVisible,
 
   if (!reservationDetails) return null;
 
-  console.log(reservationDetails?.responseData.date);
-
   const handleViewTicket = ()=>{
     router.push('/(tabs)')
     handleModalVisible()

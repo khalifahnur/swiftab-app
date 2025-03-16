@@ -1,29 +1,44 @@
-Here's your README in proper **Markdown format**, including a **Table of Contents** and placeholders for **images**:
+# 🍽️ Swiftab App
+
+![Swiftab App](assets/images/adaptive-icon.png)
+
+## 📌 Overview
+**Swiftab App** is a mobile application designed to simplify restaurant reservations. It enables users to:  
+- Discover and browse nearby restaurants  
+- View menus using QR codes  
+- Reserve tables with ease  
+- Manage reservations efficiently  
 
 ---
 
-```markdown
-# 🍽️ Restaurant Reservation App
+---
 
-![Restaurant Reservation App](assets/banner.png) <!-- Replace with your actual image path -->
+## 🖼️ Screenshots
 
-## 📌 Overview
-The **Restaurant Reservation App** is a mobile application built with **React Native and Expo**, allowing users to:
-- Discover nearby restaurants
-- Reserve tables seamlessly
-- Generate QR codes for menus
-- Manage their reservations efficiently
+<p align="center">
+<img src="assets/images/readme/onboard2.jpg" alt="Reservation Screen" width="100">
+<img src="assets/images/readme/signin.jpg" alt="Reservation Screen" width="100">
+<img src="assets/images/readme/signup.jpg" alt="Reservation Screen" width="100">
+<img src="assets/images/readme/home.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/details.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/maps.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/summary2.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/summary.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/reserve.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/settings.jpg" alt="Reservation Screen" width="100">
+  <img src="assets/images/readme/logout.jpg" alt="Reservation Screen" width="100">
+</p>
 
 ---
 
 ## 📖 Table of Contents
+
 - [📌 Overview](#-overview)
 - [✨ Features](#-features)
 - [🛠️ Technologies Used](#-technologies-used)
 - [🚀 Installation](#-installation)
 - [📖 Usage Guide](#-usage-guide)
 - [🔗 API Endpoints](#-api-endpoints)
-- [🖼️ Screenshots](#-screenshots)
 - [🤝 Contribution](#-contribution)
 - [📜 License](#-license)
 - [📧 Contact](#-contact)
@@ -31,17 +46,19 @@ The **Restaurant Reservation App** is a mobile application built with **React Na
 ---
 
 ## ✨ Features
+
 - 🔍 **Find Nearby Restaurants** – Browse restaurants based on location.
-- 📄 **View Restaurant Menu** – Scan QR codes to access menus.
-- 🛒 **Add Items to Cart** – Select menu items for easy ordering.
-- 📅 **Table Reservation** – Check availability and book tables.
-- ✅ **Manage Reservations** – View active, cancelled, and completed reservations.
+- 📄 **View Restaurant Menus** – Scan QR codes to access menus instantly.
+- 🛒 **Add Items to Cart** – Select menu items for convenient ordering.
+- 📅 **Table Reservation** – Check availability and book tables effortlessly.
+- ✅ **Manage Reservations** – Keep track of active, cancelled, and completed bookings.
 - 🔗 **QR Code Generation** – Generate QR codes for quick menu access.
-- 🔔 **Real-Time Updates** – Get instant updates on reservation status.
+- 🔔 **Real-Time Notifications** – Receive instant updates on reservation status.
 
 ---
 
 ## 🛠️ Technologies Used
+
 - **Frontend:** React Native (Expo)
 - **Backend:** Node.js & Express
 - **Database:** MongoDB Atlas
@@ -55,11 +72,11 @@ The **Restaurant Reservation App** is a mobile application built with **React Na
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/restaurant-reservation-app.git
+   git clone https://github.com/yourusername/swiftab-app.git
    ```
 2. **Navigate to the project directory:**
    ```sh
-   cd restaurant-reservation-app
+   cd swiftab-app
    ```
 3. **Install dependencies:**
    ```sh
@@ -73,59 +90,43 @@ The **Restaurant Reservation App** is a mobile application built with **React Na
 ---
 
 ## 📖 Usage Guide
+
 1. **Sign up or log in** to access the app.
-2. Use the **Nearby Restaurants** feature to find restaurants.
-3. **Scan QR codes** to view restaurant menus.
-4. **Add items to your cart** and proceed with table reservations.
-5. **Monitor reservation status** (Active, Cancelled, Completed).
+2. Use the **Nearby Restaurants** feature to find dining places.
+3. **Scan QR codes** to view restaurant menus instantly.
+4. **Add menu items to your cart** and proceed with table reservations.
+5. **Monitor your reservation status** (Active, Cancelled, Completed).
 
 ---
 
 ## 🔗 API Endpoints
-| Method   | Endpoint               | Description                        |
-|----------|------------------------|------------------------------------|
-| **GET**  | `/restaurants`          | Fetch nearby restaurants          |
-| **GET**  | `/menu/:restaurantId`   | Retrieve menu for a specific restaurant |
-| **POST** | `/reserve`              | Create a new reservation          |
-| **GET**  | `/reservations`         | Get user reservation details      |
-| **DELETE** | `/reservations/:id`   | Cancel a reservation              |
 
----
-
-## 🖼️ Screenshots
-### 📌 Home Screen
-![Home Screen](assets/home-screen.png) <!-- Replace with actual screenshot -->
-  
-### 📅 Reservation Screen
-![Reservation Screen](assets/reservation-screen.png) <!-- Replace with actual screenshot -->
-
----
+| Method     | Endpoint              | Description                             |
+| ---------- | --------------------- | --------------------------------------- |
+| **GET**    | `/restaurants`        | Fetch nearby restaurants                |
+| **GET**    | `/menu/:restaurantId` | Retrieve menu for a specific restaurant |
+| **POST**   | `/reserve`            | Create a new reservation                |
+| **GET**    | `/reservations`       | Get user reservation details            |
+| **DELETE** | `/reservations/:id`   | Cancel a reservation                    |
 
 ## 🤝 Contribution
+
 We welcome contributions! To contribute:
-1. Fork the repository.
-2. Create a new branch (`feature-branch`).
-3. Commit your changes and push them.
-4. Open a pull request with a description of your changes.
+
+1. **Fork the repository**
+2. **Create a new branch** (`feature-branch`)
+3. **Commit your changes and push them**
+4. **Open a pull request** with a description of your changes
 
 ---
 
 ## 📜 License
+
 This project is licensed under the **MIT License**.
 
 ---
 
 ## 📧 Contact
+
 For inquiries or support, reach out via email:  
-✉️ [your-email@example.com]
-```
-
----
-
-### 🔹 Changes & Enhancements:
-✅ **Added Table of Contents** for easy navigation  
-✅ **Formatted as proper Markdown**  
-✅ **Added placeholders for images/screenshots**  
-✅ **Kept a clean and structured format**  
-
-Let me know if you need further tweaks! 🚀
+✉️ [khalifahnur1095@gmail.com]

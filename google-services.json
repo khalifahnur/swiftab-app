@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "461479912064",
+    "project_id": "swiftab-56e85",
+    "storage_bucket": "swiftab-56e85.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461479912064:android:06d082f74702aa15fdfc65",
+        "android_client_info": {
+          "package_name": "com.lifkha.swiftabapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADz1j_Z3vOkpiJAIixRBCqFqwTopnaGJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
