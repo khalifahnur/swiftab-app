@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -17,32 +17,22 @@ import RenderMenuItem from "./RenderMenuItem";
 import { FetchOrder } from "@/types";
 import Header from "../Header";
 
-interface prop {
-  data: FetchOrder[] | undefined;
+interface Props {
+  data: FetchOrder[];
   refreshing: boolean;
   onRefresh: () => void;
 }
 
-const Orders = ({ data, refreshing, onRefresh }: prop) => {
-  const [orders, setOrders] = useState(data?.orders || []);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+const Orders = ({ data, refreshing, onRefresh }: Props) => {
+  const [selectedOrder, setSelectedOrder] = useState<FetchOrder | null>(null);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
-
-  const OrderListHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#000" />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>Order History</Text>
-    </View>
-  );
 
   return (
     <>
       {!isViewingDetails ? (
         <FlashList
-          data={orders}
-          renderItem={(item) => (
+          data={data} // Directly use data instead of local state
+          renderItem={({ item }) => (
             <RenderMenu
               item={item}
               setSelectedOrder={setSelectedOrder}
@@ -53,7 +43,7 @@ const Orders = ({ data, refreshing, onRefresh }: prop) => {
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          ListHeaderComponent={<Header HeaderTitle={'Order History'} />}
+          ListHeaderComponent={<Header HeaderTitle={"Order History"} />}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -64,8 +54,8 @@ const Orders = ({ data, refreshing, onRefresh }: prop) => {
         />
       ) : (
         <FlashList
-          data={selectedOrder}
-          renderItem={(item) => <RenderMenuItem item={item} />}
+          data={selectedOrder ? [selectedOrder] : []}
+          renderItem={({ item }) => <RenderMenuItem item={item} />}
           estimatedItemSize={150}
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}

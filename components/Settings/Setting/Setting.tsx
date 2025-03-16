@@ -198,8 +198,7 @@ export default function Setting() {
           {/* Log Out */}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => 
-              //setModalVisible(true)
+            onPress={
               LogOutHandler
               }
           >
