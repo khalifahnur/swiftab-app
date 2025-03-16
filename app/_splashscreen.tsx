@@ -20,28 +20,29 @@ export default function SplashScreen() {
         ]);
 
         // Add minimum 1s delay for better UX
-        await Promise.all([
-          new Promise(resolve => setTimeout(resolve, 1000)),
-          ExpoSplashScreen.hideAsync()
-        ]);
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         if (!isMounted) return;
 
         const parsedUser = userData ? JSON.parse(userData) : null;
         const authToken = parsedUser?.token;
 
+        const seenOnboard = hasSeenOnboard === "true";
+
         // Handle navigation
-        if (!hasSeenOnboard) {
+        if (!seenOnboard) {
+          await AsyncStorage.setItem("hasSeenOnboard", "true");
           router.replace('/(onboard)');
         } else if (authToken) {
           router.replace('/(tabs)');
         } else {
           router.replace('/(auth)');
         }
-
       } catch (error) {
         console.error(error);
         router.replace('/(auth)/signin');
+      } finally {
+        await ExpoSplashScreen.hideAsync();
       }
     };
 
