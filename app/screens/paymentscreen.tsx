@@ -2,6 +2,9 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import PaymentMethodScreen from "@/components/Payment/Payment";
 import { useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { color } from "@/constants/Colors";
+import { StatusBar } from "expo-status-bar";
 
 export default function paymentscreen() {
   const param = useLocalSearchParams();
@@ -34,9 +37,10 @@ export default function paymentscreen() {
     goBack: goBack,
   };
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={color.green} />
       <PaymentMethodScreen navigation={navigationProps} route={routeParams} />
-    </View>
+    </SafeAreaView>
   );
 }
 
