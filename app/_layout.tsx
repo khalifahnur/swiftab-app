@@ -5,10 +5,11 @@ import { Provider } from "react-redux";
 import { Store } from "@/redux/store/Store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetworkStatus from "@/components/NetworkStatus";
-import { useNotifications } from "@/hooks/useNotifications";
+//import { useNotifications } from "@/hooks/useNotifications";
 import { useAppPermissions } from "@/hooks/usePermissionHook";
+import { StatusBar } from "expo-status-bar";
+import { color } from "@/constants/Colors";
 
 export default function RootLayout() {
   const [client] = useState(() => new QueryClient());
@@ -31,13 +32,13 @@ export default function RootLayout() {
     []
   );
 
-  const { fcmToken } = useNotifications();
+  //const { fcmToken } = useNotifications();
 
-  useEffect(() => {
-    if (fcmToken) {
-      AsyncStorage.setItem("fcmToken", fcmToken);
-    }
-  }, [fcmToken]);
+  // useEffect(() => {
+  //   if (fcmToken) {
+  //     AsyncStorage.setItem("fcmToken", fcmToken);
+  //   }
+  // }, [fcmToken]);
 
   useAppPermissions()
 
@@ -46,10 +47,11 @@ export default function RootLayout() {
       <QueryClientProvider client={client}>    
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(onboard)" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(onboard)" />
           </Stack>
+          <StatusBar backgroundColor={color.green} />
           <NetworkStatus />
           <Toast config={toastConfig()} />
         </GestureHandlerRootView>
