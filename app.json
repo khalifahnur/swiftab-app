@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#008080"
       },
       "googleServicesFile": "./google-services.json",
       "permissions": [
@@ -29,7 +29,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyADz1j_Z3vOkpiJAIixRBCqFqwTopnaGJA"
+          "apiKey":"AIzaSyADz1j_Z3vOkpiJAIixRBCqFqwTopnaGJA"
         }
       },
       "package": "com.lifkha.swiftabapp"
@@ -49,7 +49,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#008080"
         }
       ],
       [
@@ -88,12 +88,14 @@
       "typedRoutes": true
     },
     "extra": {
+      "googleMapsApiKey": "AIzaSyADz1j_Z3vOkpiJAIixRBCqFqwTopnaGJA",
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "1b4622ba-7a17-416d-9ce1-77e1fa7297d7"
+        "projectId": "2891846d-84e1-486c-bec7-b4b30bf1e78b"
       }
-    }
+    },
+    "owner": "lifkha"
   }
 }
