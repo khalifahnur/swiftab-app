@@ -1,92 +1,176 @@
-import { Image, StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { 
+  Image, 
+  StyleSheet, 
+  Text, 
+  View, 
+  Platform 
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { formatCurrency } from "@/lib/helpers";
 
-export default function RenderMenuItem({ item }) {
-  console.log(item)
-  return (
-    <View style={styles.menuItem}>
-      <Image
-        source={{ uri: item.item.image }}
-        style={styles.menuImage}
-        resizeMode="cover"
-      />
-      <View style={styles.menuItemInfo}>
-        <Text style={styles.menuItemName}>{item.item.name}</Text>
-        <Text style={styles.menuItemDescription}>{item.item.description}</Text>
-        <View style={styles.priceRow}>
-          <View style={styles.quantityContainer}>
-            <Text style={styles.quantityText}>
-              {item.item.quantity.$numberInt}x
-            </Text>
-          </View>
-          <Text style={styles.menuItemTotal}>
-            {formatCurrency(
-              parseInt(item.cost.$numberInt) *
-                parseInt(item.item.quantity.$numberInt)
-            )}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
+interface MenuItem {
+  _id?: string;
+  name: string;
+  description: string;
+  image: string;
+  cost: number;
+  quantity: number;
 }
 
+interface RenderMenuItemProps {
+  items: MenuItem[];
+}
+
+const RenderMenuItem: React.FC<RenderMenuItemProps> = ({ items }) => {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <View style={styles.container}>
+      {items.map((menuItem, index) => (
+        <View 
+          key={menuItem._id || `menu-item-${index}`} 
+          style={styles.menuItemWrapper}
+        >
+          <View style={styles.menuItem}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: menuItem.image }}
+                style={styles.menuImage}
+                resizeMode="cover"
+              />
+              {menuItem.quantity > 1 && (
+                <View style={styles.quantityOverlay}>
+                  <Text style={styles.quantityOverlayText}>
+                    {menuItem.quantity}x
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.menuItemInfo}>
+              <View style={styles.textContainer}>
+                <Text style={styles.menuItemName} numberOfLines={1}>
+                  {menuItem.name}
+                </Text>
+                <Text 
+                  style={styles.menuItemDescription}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {menuItem.description}
+                </Text>
+              </View>
+              
+              <View style={styles.priceRow}>
+                <View style={styles.priceDetailsContainer}>
+                  <Text style={styles.priceLabel}>Item Price</Text>
+                  <Text style={styles.menuItemPrice}>
+                    {formatCurrency(menuItem.cost)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F7F9FC',
+    paddingVertical: 10,
+  },
+  menuItemWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
   menuItem: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  imageContainer: {
+    width: 120,
+    height: 120,
+    position: 'relative',
+    backgroundColor: '#F0F3F4',
   },
   menuImage: {
-    width: 80,
-    height: 80,
+    width: '100%',
+    height: '100%',
+  },
+  quantityOverlay: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: "#f0f0f0",
+  },
+  quantityOverlayText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
   },
   menuItemInfo: {
     flex: 1,
-    marginLeft: 16,
+    padding: 16,
     justifyContent: "space-between",
   },
+  textContainer: {
+    marginBottom: 12,
+  },
   menuItemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#212529",
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2C3E50",
+    marginBottom: 6,
   },
   menuItemDescription: {
     fontSize: 14,
-    color: "#6c757d",
-    marginBottom: 8,
+    color: "#7F8C8D",
+    lineHeight: 20,
   },
   priceRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    alignContent:'flex-end'
+    
   },
-  quantityContainer: {
-    backgroundColor: "#f0f0f0",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  priceDetailsContainer: {
+    alignItems: 'flex-start',
   },
-  quantityText: {
+  priceLabel: {
+    fontSize: 12,
+    color: "#7F8C8D",
+    marginBottom: 4,
+  },
+  menuItemPrice: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#212529",
+    color: "#34495E",
   },
   menuItemTotal: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#212529",
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#2980B9",
   },
 });
+
+export default RenderMenuItem;

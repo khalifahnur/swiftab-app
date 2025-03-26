@@ -27,11 +27,12 @@ const Orders = ({ data, refreshing, onRefresh }: Props) => {
   const [selectedOrder, setSelectedOrder] = useState<FetchOrder | null>(null);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
 
+  const renderData = data?.orders;
   return (
     <>
       {!isViewingDetails ? (
         <FlashList
-          data={data} // Directly use data instead of local state
+          data={renderData}
           renderItem={({ item }) => (
             <RenderMenu
               item={item}
@@ -55,7 +56,7 @@ const Orders = ({ data, refreshing, onRefresh }: Props) => {
       ) : (
         <FlashList
           data={selectedOrder ? [selectedOrder] : []}
-          renderItem={({ item }) => <RenderMenuItem item={item} />}
+          renderItem={({ item }) => <RenderMenuItem items={item.menu} />}
           estimatedItemSize={150}
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}

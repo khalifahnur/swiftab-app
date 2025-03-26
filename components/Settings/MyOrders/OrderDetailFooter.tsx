@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function OrderDetailFooter({ selectedOrder }) {
   if (!selectedOrder) return null;
 
-  const total = calculateTotal(selectedOrder.item.menu);
+  const total = calculateTotal(selectedOrder.menu);
   const tax = total * 0.1;
 
   return (
@@ -28,7 +28,7 @@ export default function OrderDetailFooter({ selectedOrder }) {
         </View>
 
         {/* Only show the payment button if the order is unpaid */}
-        {selectedOrder.item.paid === "Unpaid" && (
+        {selectedOrder.paid === "Unpaid" && (
           <TouchableOpacity style={styles.payButton}>
             <Ionicons name="wallet-outline" size={20} color="#fff" />
             <Text style={styles.payButtonText}>Pay Now</Text>

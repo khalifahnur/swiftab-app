@@ -3,71 +3,60 @@ import React from 'react'
 import { calculateTotal, formatCurrency, formatDate, getPaymentColor, getStatusColor } from '@/lib/helpers';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function RenderMenu({item,setSelectedOrder,setIsViewingDetails}) {
-        const total = calculateTotal(item.item.menu);    
-        return (
-          <TouchableOpacity
-            style={styles.orderCard}
-            onPress={() => {
-              setSelectedOrder(item);
-              setIsViewingDetails(true);
-            }}
-          >
-            <View style={styles.orderCardHeader}>
-              <Text style={styles.orderCardId}>{item.item.orderId}</Text>
-              <Text style={styles.orderCardDate}>{formatDate(item.item.createdAt)}</Text>
-            </View>
-    
-            <View style={styles.orderCardInfo}>
-              <View>
-                <Text style={styles.orderCardInfoLabel}>Table</Text>
-                <Text style={styles.orderCardInfoValue}>{item.item.tableNumber}</Text>
-              </View>
-              <View>
-                <Text style={styles.orderCardInfoLabel}>Items</Text>
-                <Text style={styles.orderCardInfoValue}>{item?.item.menu.length}</Text>
-              </View>
-              <View>
-                <Text style={styles.orderCardInfoLabel}>Total</Text>
-                <Text style={styles.orderCardInfoValue}>
-                  {formatCurrency(total)}
-                </Text>
-              </View>
-            </View>
-    
-            <View style={styles.orderCardStatus}>
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: getStatusColor(item.item.status) },
-                ]}
-              >
-                <Ionicons
-                  name={
-                    item.item.status === "Served" ? "checkmark-circle" : "time-outline"
-                  }
-                  size={16}
-                  color="#fff"
-                />
-                <Text style={styles.statusText}>{item.item.status}</Text>
-              </View>
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: getPaymentColor(item.item.paid) },
-                ]}
-              >
-                <Ionicons
-                  name={item.paid === "Paid" ? "wallet-outline" : "time-outline"}
-                  size={16}
-                  color="#fff"
-                />
-                <Text style={styles.statusText}>{item.item.paid}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        );
-      };
+export default function RenderMenu({ item, setSelectedOrder, setIsViewingDetails }) {
+  if (!item) return null; // Prevent crashes if item is undefined
+
+  const total = calculateTotal(item.menu || []); // Ensure menu is an array
+  return (
+    <TouchableOpacity
+      style={styles.orderCard}
+      onPress={() => {
+        setSelectedOrder(item);
+        setIsViewingDetails(true);
+      }}
+    >
+      <View style={styles.orderCardHeader}>
+        <Text style={styles.orderCardId}>{item.orderId}</Text>
+        <Text style={styles.orderCardDate}>{formatDate(item.createdAt)}</Text>
+      </View>
+
+      <View style={styles.orderCardInfo}>
+        <View>
+          <Text style={styles.orderCardInfoLabel}>Table</Text>
+          <Text style={styles.orderCardInfoValue}>{item.tableNumber}</Text>
+        </View>
+        <View>
+          <Text style={styles.orderCardInfoLabel}>Items</Text>
+          <Text style={styles.orderCardInfoValue}>{item.menu ? item.menu.length : 0}</Text>
+        </View>
+        <View>
+          <Text style={styles.orderCardInfoLabel}>Total</Text>
+          <Text style={styles.orderCardInfoValue}>{formatCurrency(total)}</Text>
+        </View>
+      </View>
+
+      <View style={styles.orderCardStatus}>
+        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+          <Ionicons
+            name={item.status === "Served" ? "checkmark-circle" : "time-outline"}
+            size={16}
+            color="#fff"
+          />
+          <Text style={styles.statusText}>{item.status}</Text>
+        </View>
+        <View style={[styles.statusBadge, { backgroundColor: getPaymentColor(item.paid) }]}>
+          <Ionicons
+            name={item.paid === "Paid" ? "wallet-outline" : "time-outline"}
+            size={16}
+            color="#fff"
+          />
+          <Text style={styles.statusText}>{item.paid}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 
 const styles = StyleSheet.create({
     orderCard: {

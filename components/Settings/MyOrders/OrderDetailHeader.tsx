@@ -3,13 +3,9 @@ import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { formatDate, getPaymentColor, getStatusColor } from "@/lib/helpers";
 import NewSubHeader from "@/components/Home/NewSubHeader";
-import Header from "../Header";
 
-export default function OrderDetailHeader({
-  selectedOrder,
-  setIsViewingDetails,
-}) {
-  if (!selectedOrder) return null;
+export default function OrderDetailHeader({ selectedOrder, setIsViewingDetails }) {
+  if (!selectedOrder) return null; // Ensure selectedOrder is valid
 
   return (
     <>
@@ -22,7 +18,7 @@ export default function OrderDetailHeader({
         </TouchableOpacity>
         <NewSubHeader headerTitle="Order Details" />
         <View>
-          <Text style={styles.headerTitle}>{selectedOrder.item.orderId}</Text>
+          <Text style={styles.headerTitle}>{selectedOrder.orderId}</Text>
         </View>
       </View>
 
@@ -30,11 +26,11 @@ export default function OrderDetailHeader({
         <View style={styles.orderInfoRow}>
           <View style={styles.orderInfoItem}>
             <Text style={styles.label}>Reservation</Text>
-            <Text style={styles.value}>{selectedOrder.item.reservationId}</Text>
+            <Text style={styles.value}>{selectedOrder.reservationId}</Text>
           </View>
           <View style={styles.orderInfoItem}>
             <Text style={styles.label}>Table</Text>
-            <Text style={styles.value}>{selectedOrder.item.tableNumber}</Text>
+            <Text style={styles.value}>{selectedOrder.tableNumber}</Text>
           </View>
         </View>
 
@@ -42,7 +38,7 @@ export default function OrderDetailHeader({
           <View style={styles.orderInfoItem}>
             <Text style={styles.label}>Date</Text>
             <Text style={styles.value}>
-              {formatDate(selectedOrder.item.createdAt)}
+              {formatDate(selectedOrder.createdAt)}
             </Text>
           </View>
         </View>
@@ -51,36 +47,28 @@ export default function OrderDetailHeader({
           <View
             style={[
               styles.statusBadge,
-              { backgroundColor: getStatusColor(selectedOrder.item.status) },
+              { backgroundColor: getStatusColor(selectedOrder.status) },
             ]}
           >
             <Ionicons
-              name={
-                selectedOrder.item.status === "Served"
-                  ? "checkmark-circle"
-                  : "time-outline"
-              }
+              name={selectedOrder.status === "Served" ? "checkmark-circle" : "time-outline"}
               size={16}
               color="#fff"
             />
-            <Text style={styles.statusText}>{selectedOrder.item.status}</Text>
+            <Text style={styles.statusText}>{selectedOrder.status}</Text>
           </View>
           <View
             style={[
               styles.statusBadge,
-              { backgroundColor: getPaymentColor(selectedOrder.item.paid) },
+              { backgroundColor: getPaymentColor(selectedOrder.paid) },
             ]}
           >
             <Ionicons
-              name={
-                selectedOrder.item.paid === "Paid"
-                  ? "wallet-outline"
-                  : "time-outline"
-              }
+              name={selectedOrder.paid === "Paid" ? "wallet-outline" : "time-outline"}
               size={16}
               color="#fff"
             />
-            <Text style={styles.statusText}>{selectedOrder.item.paid}</Text>
+            <Text style={styles.statusText}>{selectedOrder.paid}</Text>
           </View>
         </View>
       </View>
@@ -89,6 +77,7 @@ export default function OrderDetailHeader({
     </>
   );
 }
+
 
 const styles = StyleSheet.create({
   header: {
