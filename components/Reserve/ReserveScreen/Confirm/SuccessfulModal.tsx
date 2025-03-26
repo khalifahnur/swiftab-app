@@ -1,32 +1,53 @@
-// components/SuccessModal.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Modal, 
+  Dimensions, 
+  Platform 
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { color } from '@/constants/Colors';
 import LottieView from "lottie-react-native";
+import Icon from 'react-native-vector-icons/Ionicons';
 
 interface SuccessModalProps {
-  visible:boolean;
-  handleModalVisible: ()=>void;
+  visible: boolean;
+  handleModalVisible: () => void;
   reservationDetails: {
-    name: string;
-    date: string;
-    time: string;
-    duration: string;
-    guest: number;
-    tableNumber: string;
-    reservationId: string;
+    responseData: {
+      reservationId: string;
+      name: string;
+      date: string;
+      time: string;
+      duration: string;
+      guest: number;
+      tableNumber: string;
+    }
   } | null;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({visible, handleModalVisible, reservationDetails }) => {
+const { width } = Dimensions.get('window');
+
+const SuccessModal: React.FC<SuccessModalProps> = ({
+  visible, 
+  handleModalVisible, 
+  reservationDetails 
+}) => {
   const router = useRouter();
 
   if (!reservationDetails) return null;
 
-  const handleViewTicket = ()=>{
-    router.push('/(tabs)')
-    handleModalVisible()
+  const handleViewTicket = () => {
+    router.push('/(tabs)');
+    handleModalVisible();
+  }
+
+  const handleViewBookings = () => {
+    router.push('/(tabs)/(toptabs)');
+    handleModalVisible();
   }
 
   return (
@@ -34,48 +55,65 @@ const SuccessModal: React.FC<SuccessModalProps> = ({visible, handleModalVisible,
       animationType="slide"
       transparent={true}
       visible={visible}
+      onRequestClose={handleModalVisible}
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
+          <TouchableOpacity 
+            style={styles.closeButton} 
+            onPress={handleModalVisible}
+          >
+            <Icon name="close" size={24} color="#2C3E50" />
+          </TouchableOpacity>
+
           {/* Success Animation */}
           <View style={styles.iconContainer}>
             <LottieView
               source={require("@/assets/images/lottie/success.json")}
               autoPlay
-              loop={true}
-              style={{ width: 100, height: 100 }}
+              loop={false}
+              style={styles.lottieAnimation}
             />
           </View>
 
-          <Text style={styles.title}>Successfully Reserved Your Table!</Text>
+          <Text style={styles.title}>Reservation Confirmed!</Text>
+          <Text style={styles.subtitle}>
+            Your table has been successfully reserved.
+          </Text>
           
           {/* Reservation Details */}
           <View style={styles.detailsContainer}>
-            <DetailRow label="Reservation ID" value={reservationDetails?.responseData.reservationId} />
-            <DetailRow label="Name" value={reservationDetails?.responseData.name} />
-            <DetailRow label="Date" value={reservationDetails?.responseData.date} />
-            <DetailRow label="Time" value={reservationDetails?.responseData.time} />
-            <DetailRow label="Duration" value={`${reservationDetails?.responseData.duration} Mins`} />
-            <DetailRow label="No. of Guests" value={reservationDetails?.responseData.guest.toString()} />
-            <DetailRow label="Table Number" value={reservationDetails?.responseData.tableNumber} />
+            {[
+              { label: "Reservation ID", value: reservationDetails.responseData.reservationId },
+              { label: "Name", value: reservationDetails.responseData.name },
+              { label: "Date", value: reservationDetails.responseData.date },
+              { label: "Time", value: reservationDetails.responseData.time },
+              { label: "Duration", value: `${reservationDetails.responseData.duration} Mins` },
+              { label: "Guests", value: reservationDetails.responseData.guest.toString() },
+              { label: "Table Number", value: reservationDetails.responseData.tableNumber },
+            ].map((detail, index) => (
+              <DetailRow 
+                key={index} 
+                label={detail.label} 
+                value={detail.value} 
+              />
+            ))}
           </View>
 
           {/* Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
-              style={styles.button} 
+              style={styles.primaryButton} 
               onPress={handleViewTicket}
             >
               <Text style={styles.buttonText}>View E-Ticket</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => router.push('/(tabs)/(toptabs)')}
+              style={styles.secondaryButton}
+              onPress={handleViewBookings}
             >
-              <Text style={[styles.buttonText, styles.secondaryButtonText]}>
-                View Bookings
-              </Text>
+              <Text style={styles.secondaryButtonText}>View Bookings</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -101,22 +139,56 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 20,
-    width: '90%',
+    padding: 25,
+    width: width * 0.9,
     alignItems: 'center',
+    position: 'relative',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    zIndex: 10,
   },
   iconContainer: {
     marginBottom: 20,
+    width: 150,
+    height: 150,
+  },
+  lottieAnimation: {
+    width: '100%',
+    height: '100%',
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#7F8C8D',
     marginBottom: 20,
     textAlign: 'center',
   },
   detailsContainer: {
     width: '100%',
     marginBottom: 20,
+    backgroundColor: '#F7F7F7',
+    borderRadius: 12,
+    padding: 15,
   },
   detailRow: {
     flexDirection: 'row',
@@ -126,36 +198,42 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5E5',
   },
   label: {
-    color: '#666666',
+    color: '#2C3E50',
     fontSize: 14,
+    fontWeight: '500',
   },
   value: {
-    fontWeight: '500',
+    color: '#34495E',
     fontSize: 14,
+    fontWeight: '600',
   },
   buttonContainer: {
     width: '100%',
-    gap: 10,
+    gap: 15,
   },
-  button: {
+  primaryButton: {
     backgroundColor: color.green,
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
-    width: '100%',
+  },
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: color.green,
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: color.green,
-  },
   secondaryButtonText: {
     color: color.green,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

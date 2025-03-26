@@ -1,4 +1,5 @@
 import { color } from "@/constants/Colors";
+import { router } from "expo-router";
 import moment from "moment";
 import React, { useState } from "react";
 import {
@@ -73,8 +74,8 @@ const ReservationCard = ({ items }: prop) => {
 
       {/* Action Buttons */}
       <View>
-        <TouchableOpacity style={styles.cancelButton}>
-          <Text style={styles.cancelText}>Cancel</Text>
+        <TouchableOpacity style={styles.cancelButton} onPress={()=>router.navigate('/screens/ratescreen')}>
+          <Text style={styles.cancelText}>Rate</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.navigateButton}>
           <Text style={styles.navigateText}>Navigate</Text>

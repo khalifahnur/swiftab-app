@@ -12,6 +12,9 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+import useStore from "@/store/useStore";
 
 interface prop {
   items: {
@@ -42,11 +45,23 @@ type cancelParams = {
 }
 
 const ReservationCard = ({ items }: prop) => {
-  console.log(items)
-  const [isRemind, setIsRemind] = useState(false);
-  const [userData, setUserData] = useState<UserData>({} as UserData);
+  //const [isRemind, setIsRemind] = useState(false);
+  const {isRemind,setIsRemind} = useStore();
 
-  const formattedTime = moment(items.time).format("MMM - DD, YYYY  HH:mm A");
+  const [userData, setUserData] = useState<UserData>({} as UserData);
+  
+
+  // const formattedTime = moment(items.time).format("MMM - DD, YYYY  HH:mm A");
+  // const reservetime = moment(items.time).format("HH:mm A")
+  const date = new Date(items.time);
+const formattedTime = date.toLocaleString("en-US", { 
+  month: "short", day: "2-digit", year: "numeric", 
+  hour: "2-digit", minute: "2-digit", hour12: true 
+});
+const reservetime = date.toLocaleTimeString("en-US", { 
+  hour: "2-digit", minute: "2-digit", hour12: true 
+});
+
   const image = items.image;
   const location = items.location;
   const rate = items.rate;
@@ -80,6 +95,70 @@ const ReservationCard = ({ items }: prop) => {
 
   }
 
+  const setupNotificationChannel = async () => {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('reservation-reminders', {
+        name: 'Reservation Reminders',
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: 'default',
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  };
+
+  const scheduleReminderNotification = async () => {
+    try {
+      await setupNotificationChannel();
+      
+      // Calculate notification time (e.g., 1 hour before reservation)
+      const reservationTime = moment(items.time);
+      const reminderTime = reservationTime.subtract(1, 'hour'); // Adjust as needed
+      
+      // Cancel any existing notifications for this reservation
+      await Notifications.cancelScheduledNotificationAsync(items.reservationId);
+      
+      // Schedule new notification
+      await Notifications.scheduleNotificationAsync({
+        identifier: items.reservationId, // Unique ID for this notification
+        content: {
+          title: `📅 Upcoming Reservation at ${restaurantName}`,
+          body: `🍽️ Your reservation is at ${reservetime}. See you soon!`,
+          sound: 'default',
+          data: {
+            reservationId: items.reservationId,
+            type: 'reservation-reminder',
+          },
+        },        
+        trigger: {
+          date: reminderTime.toDate(),
+          channelId: 'reservation-reminders',
+        },
+      });
+      
+      console.log('Reminder scheduled successfully');
+    } catch (error) {
+      console.error('Error scheduling reminder:', error);
+    }
+  };
+
+  const cancelReminderNotification = async () => {
+    try {
+      await Notifications.cancelScheduledNotificationAsync(items.reservationId);
+      console.log('Reminder cancelled successfully');
+    } catch (error) {
+      console.error('Error cancelling reminder:', error);
+    }
+  };
+
+  const handleReminderToggle = async (value: boolean) => {
+    setIsRemind(value);
+    if (value) {
+      await scheduleReminderNotification();
+    } else {
+      await cancelReminderNotification();
+    }
+  };
   return (
     <View style={styles.cardContainer}>
       {/* Date and Reminder */}
@@ -89,7 +168,7 @@ const ReservationCard = ({ items }: prop) => {
           <Text style={styles.remindText}>Remind me</Text>
           <Switch
             value={isRemind}
-            onValueChange={(value) => setIsRemind(value)}
+            onValueChange={handleReminderToggle}
             trackColor={{ false: "#ccc", true: "#008080" }}
             thumbColor={isRemind ? "#008080" : "#f4f3f4"}
           />
