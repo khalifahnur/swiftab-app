@@ -5,6 +5,7 @@ import { RestaurantData } from "@/types";
 import Restaurants from "./Restaurants";
 import Cuisine from "./Cuisine";
 import Promotions from "./Promotions";
+import RecentlyViewedRestaurants from "./RecentlyViewed";
 
 interface Section {
   title: string;
@@ -12,6 +13,7 @@ interface Section {
 }
 
 interface ContainerProps {
+  recentlyViewed:Section[];
   allRestaurants: Section[];
   refreshing: boolean;
   onRefresh: () => void;
@@ -25,6 +27,7 @@ interface RestaurantCardProps {
 }
 
 const Container = ({
+  recentlyViewed,
   allRestaurants,
   refreshing,
   onRefresh,
@@ -38,6 +41,7 @@ const Container = ({
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Special Offer Card */}
         <Promotions />
+        <RecentlyViewedRestaurants recentlyViewed={recentlyViewed} />
         <Restaurants title="New Restaurant" data={allRestaurants} />
 
         <Restaurants title="Recommended Restaurants" data={allRestaurants} />

@@ -39,7 +39,7 @@ export default function Promotions() {
       highlight: 'Reserve',
       description: 'Book in seconds',
       buttonText: 'Download',
-      image: require("../../assets/images/st/swiftab.jpg"),
+      image: require("../../assets/images/adaptive-icon.png"),
       gradient: ['#26A69A', '#00796B'],
     },
   ];
