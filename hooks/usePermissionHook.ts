@@ -1,67 +1,169 @@
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { Camera } from "react-native-vision-camera";
-//import * as Notifications from "expo-notifications";
-//import messaging from '@react-native-firebase/messaging';
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 
 export const useAppPermissions = () => {
   const [permissions, setPermissions] = useState({
     location: false,
     camera: false,
-    //notifications: false,
-    //firebaseMessaging: false
+    notifications: false,
+    pushToken: null as string | null,
   });
+
+  // Register for push notifications and get Expo token
+  // const registerForPushNotifications = async () => {
+  //   if (!Device.isDevice) {
+  //     console.warn("Must use a physical device for push notifications");
+  //     return null;
+  //   }
+
+  //   const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //   let finalStatus = existingStatus;
+
+  //   if (existingStatus !== "granted") {
+  //     const { status } = await Notifications.requestPermissionsAsync();
+  //     finalStatus = status;
+  //   }
+
+  //   if (finalStatus !== "granted") {
+  //     console.warn("Failed to get push notification permissions!");
+  //     return null;
+  //   }
+
+  //   try {
+  //     const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync();
+  //     console.log("Expo Push Token:", expoPushToken);
+  //     await AsyncStorage.setItem("expoPushToken", expoPushToken);
+  //     return expoPushToken;
+  //   } catch (error) {
+  //     console.error("Error fetching Expo push token:", error);
+  //     return null;
+  //   }
+  // };
+
+  const registerForPushNotifications = async () => {
+    // Check if it's a physical device
+    if (!Device.isDevice) {
+      console.warn("Must use a physical device for push notifications");
+      return null;
+    }
+
+    try {
+      // First, request permissions
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      // If no permission, return null
+      if (finalStatus !== 'granted') {
+        console.warn('Failed to get push notification permissions!');
+        return null;
+      }
+
+      // Get the Expo push token
+      const tokenResponse = await Notifications.getExpoPushTokenAsync({
+        projectId: 'YOUR_EXPO_PROJECT_ID' // Replace with your actual Expo project ID
+      });
+
+      const token = tokenResponse.data;
+      console.log('Expo Push Token:', token);
+
+      // Optionally store the token
+      await AsyncStorage.setItem('expoPushToken', token);
+
+      return token;
+    } catch (error) {
+      console.error('Error registering for push notifications:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const requestPermissions = async () => {
       try {
-        // Location permission
+        // Request location permission
         const locationStatus = await Location.requestForegroundPermissionsAsync();
         const hasLocationPermission = locationStatus.status === "granted";
 
-        // Camera permission
-        let hasCameraPermission = false;
+        // Request camera permission
         const cameraStatus = await Camera.getCameraPermissionStatus();
-        if (cameraStatus !== "granted") {
-          hasCameraPermission = (await Camera.requestCameraPermission()) === "granted";
-        } else {
-          hasCameraPermission = true;
+        const hasCameraPermission =
+          cameraStatus === "granted" ||
+          (await Camera.requestCameraPermission()) === "granted";
+
+        // Request notifications permissions
+        const { status: notifStatus } = await Notifications.getPermissionsAsync();
+        let hasNotificationPermission = notifStatus === "granted";
+
+        if (!hasNotificationPermission) {
+          const { status } = await Notifications.requestPermissionsAsync();
+          hasNotificationPermission = status === "granted";
         }
 
-        // Expo notifications permission
-        // let hasNotificationPermission = false;
-        // const { status: notifStatus } = await Notifications.getPermissionsAsync();
-        // if (notifStatus !== "granted") {
-        //   const { status } = await Notifications.requestPermissionsAsync();
-        //   hasNotificationPermission = status === "granted";
-        // } else {
-        //   hasNotificationPermission = true;
-        // }
+        let pushToken = null;
+        if (hasNotificationPermission) {
+          pushToken = await registerForPushNotifications();
+        }
 
-        // Firebase messaging permission
-        // let hasFirebasePermission = false;
-        // const authStatus = await messaging().requestPermission();
-        // hasFirebasePermission = 
-        //   authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        //   authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        setPermissions((prev) => ({
+          ...prev,
+          location: hasLocationPermission,
+          camera: hasCameraPermission,
+          notifications: hasNotificationPermission,
+          pushToken,
+        }));
 
-        // // Update state
-        // setPermissions({
-        //   location: hasLocationPermission,
-        //   camera: hasCameraPermission,
-        //   notifications: hasNotificationPermission,
-        //   firebaseMessaging: hasFirebasePermission
-        // });
-
-        // if (!hasNotificationPermission || !hasFirebasePermission) {
-        //   alert("Please enable notifications in settings!");
-        // }
+        if (!hasNotificationPermission) {
+          alert("Please enable notifications in settings!");
+        }
       } catch (error) {
         console.error("Permission error:", error);
       }
     };
 
     requestPermissions();
+
+    // Set up notification listeners
+    const notificationReceivedListener =
+      Notifications.addNotificationReceivedListener((notification) => {
+        console.log("Notification received:", notification);
+      });
+
+    const notificationResponseListener =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log("Notification response:", response);
+      });
+
+    // Set notification handler inside useEffect
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+
+    // Android notification channel setup
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "Default Channel",
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: "default",
+      });
+    }
+
+    return () => {
+      notificationReceivedListener.remove();
+      notificationResponseListener.remove();
+    };
   }, []);
 
   return permissions;
