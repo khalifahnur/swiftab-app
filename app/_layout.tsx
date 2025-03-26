@@ -6,7 +6,6 @@ import { Store } from "@/redux/store/Store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 import NetworkStatus from "@/components/NetworkStatus";
-//import { useNotifications } from "@/hooks/useNotifications";
 import { useAppPermissions } from "@/hooks/usePermissionHook";
 import { StatusBar } from "expo-status-bar";
 import { color } from "@/constants/Colors";
@@ -31,14 +30,6 @@ export default function RootLayout() {
     }),
     []
   );
-
-  //const { fcmToken } = useNotifications();
-
-  // useEffect(() => {
-  //   if (fcmToken) {
-  //     AsyncStorage.setItem("fcmToken", fcmToken);
-  //   }
-  // }, [fcmToken]);
 
   useAppPermissions()
 
