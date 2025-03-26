@@ -25,51 +25,58 @@ export default function SearchScreen() {
   const [displayAddress, setDisplayAddress] = useState('Locating...')
   const [isFetchingLocation, setIsFetchingLocation] = useState(true)
 
+  // const { data, isLoading, isError, error } = useQuery({
+  //   queryKey: ['nearbyRestaurants', location.latitude, location.longitude],
+  //   queryFn: () => fetchNearMeRes(location?.latitude!, location?.longitude!),
+  //   enabled: !!location.latitude && !!location.longitude,
+  //   staleTime: 10 * 60 * 1000
+  // })
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['nearbyRestaurants', location.latitude, location.longitude],
-    queryFn: () => fetchNearMeRes(location?.latitude!, location?.longitude!),
-    enabled: !!location.latitude && !!location.longitude,
+    queryFn: () => fetchNearMeRes(location.latitude!, location.longitude!),
+    enabled: location.latitude !== null && location.longitude !== null, // Only run when location is available
     staleTime: 10 * 60 * 1000
-  })
+  });
+  
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false })
   }, [])
 
   useEffect(() => {
-    (async () => {
+    const fetchLocation = async () => {
       try {
         // Request location permission
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
-          alert("Location permission denied");
-          setDisplayAddress("Permission denied");
+          setDisplayAddress("Permission denied. Please enable location services.");
           return;
         }
-
-        // Get high-accuracy location
+  
+        // Fetch current position with high accuracy
         const { coords } = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Highest,
         });
-        const newLocation = { latitude: coords.latitude, longitude: coords.longitude };
-        setLocation(newLocation);
-
-        const address = await Location.reverseGeocodeAsync(newLocation);
+  
+        if (!coords) throw new Error("Unable to retrieve location.");
+  
+        // Set location state
+        setLocation({ latitude: coords.latitude, longitude: coords.longitude });
+  
+        // Reverse geocode to get human-readable address
+        const address = await Location.reverseGeocodeAsync(coords);
         if (address.length > 0) {
           const { name, street, city, region, postalCode, country } = address[0];
-          const formattedAddress = [
-            name || street, 
-            city || region, 
-            postalCode,
-            country,
-          ]
+          const formattedAddress = [name || street, city || region, postalCode, country]
             .filter(Boolean)
             .join(", ");
           setDisplayAddress(formattedAddress || "Unknown location");
         } else {
           setDisplayAddress("No address found");
         }
-
+  
+        // Fetch Google Maps API for better accuracy
         const googleApiKey = Constants.expoConfig?.extra?.googleMapsApiKey;
         if (googleApiKey) {
           const response = await fetch(
@@ -80,15 +87,17 @@ export default function SearchScreen() {
             setDisplayAddress(data.results[0].formatted_address);
           }
         }
-      } catch (err: any) {
-        console.error("Location Error:", err);
-        alert("Error getting location");
-        setDisplayAddress("Error fetching address");
+      } catch (error: any) {
+        console.error("Location Error:", error);
+        setDisplayAddress("Error fetching location. Please try again.");
       } finally {
         setIsFetchingLocation(false);
       }
-    })();
+    };
+  
+    fetchLocation();
   }, []);
+  
 
   const transformedData = Array.isArray(data)
     ? data.map((item) => ({

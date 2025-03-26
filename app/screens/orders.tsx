@@ -72,8 +72,7 @@ export default function orders() {
         />
       </View>
     );
-  }
-
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={color.green} />
