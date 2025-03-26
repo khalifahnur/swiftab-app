@@ -140,7 +140,7 @@ export default function HomeScreen() {
       <StatusBar backgroundColor={color.green} style="auto" />
       <Container
         allRestaurants={transformedRestaurants}
-        //recentlyViewed={recentlyViewedData}
+        recentlyViewed={recentlyViewedData}
         refreshing={refreshing}
         onRefresh={onRefresh}
         isLoading={isRestaurantsLoading || isRecentlyViewedLoading}
