@@ -9,7 +9,14 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "config": {
+          "googleMaps": {
+            "apiKey": "AIzaSyC_lEd1d63NMSe2mDqQQj5VVpZWAiYz1Vc"
+          }
+        }
+      }
     },
     "production": {
       "autoIncrement": true
