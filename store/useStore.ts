@@ -21,6 +21,9 @@ interface StoreState {
 
   hasActiveReservation: boolean;
   setHasActiveReservation: (hasReservation: boolean) => void;
+
+  isRemind: boolean;
+  setIsRemind: (isRemind:boolean) => void;
 }
 
 const useStore = create<StoreState>((set) => ({
@@ -49,7 +52,10 @@ const useStore = create<StoreState>((set) => ({
 
   hasActiveReservation: false, 
   setHasActiveReservation: (hasReservation) =>
-    set({ hasActiveReservation: hasReservation })
+    set({ hasActiveReservation: hasReservation }),
+
+  isRemind: false,
+  setIsRemind: (reminder) => set({ isRemind: reminder }),
 }));
 
 export default useStore;
