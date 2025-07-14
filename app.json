@@ -10,7 +10,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#008080"
     },
-    "scheme": "myapp",
+    "scheme": "swiftabapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -18,7 +18,9 @@
       "infoPlist": {
         "NSCameraUsageDescription": "$(Swiftab) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(Swiftab) needs access to your Microphone."
-      }
+      },
+      "bundleIdentifier": "com.lifkha.swiftabapp",
+      "runtimeVersion": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -30,14 +32,21 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
       "config": {
         "googleMaps": {
-          "apiKey":"AIzaSyC_lEd1d63NMSe2mDqQQj5VVpZWAiYz1Vc"
+          "apiKey": "AIzaSyAO45-MMOSpzlpJwYPZ1r9owocITdy-_r4"
         }
       },
-      "package": "com.lifkha.swiftabapp"
+      "package": "com.lifkha.swiftabapp",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -94,7 +103,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "googleMapsApiKey": "AIzaSyC_lEd1d63NMSe2mDqQQj5VVpZWAiYz1Vc",
+      "googleMapsApiKey": "AIzaSyAO45-MMOSpzlpJwYPZ1r9owocITdy-_r4",
       "router": {
         "origin": false
       },
@@ -102,6 +111,9 @@
         "projectId": "2891846d-84e1-486c-bec7-b4b30bf1e78b"
       }
     },
-    "owner": "lifkha"
+    "owner": "lifkha",
+    "updates": {
+      "url": "https://u.expo.dev/2891846d-84e1-486c-bec7-b4b30bf1e78b"
+    }
   }
 }

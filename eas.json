@@ -6,20 +6,16 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
-      "android": {
-        "config": {
-          "googleMaps": {
-            "apiKey": "AIzaSyC_lEd1d63NMSe2mDqQQj5VVpZWAiYz1Vc"
-          }
-        }
-      }
+      "channel": "preview"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "channel": "production"
     }
   },
   "submit": {

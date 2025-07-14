@@ -11,7 +11,7 @@ import {
 } from "@/types";
 
 const api = axios.create({
-  baseURL: "https://server-production-2ee7.up.railway.app/swiftab",
+  baseURL: "https://server-production-2ee7.up.railway.app/swiftab", //https://server-production-2ee7.up.railway.app
   headers: {
     "Content-Type": "application/json",
   },

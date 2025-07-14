@@ -15,73 +15,32 @@ export const useAppPermissions = () => {
   });
 
   // Register for push notifications and get Expo token
-  // const registerForPushNotifications = async () => {
-  //   if (!Device.isDevice) {
-  //     console.warn("Must use a physical device for push notifications");
-  //     return null;
-  //   }
-
-  //   const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  //   let finalStatus = existingStatus;
-
-  //   if (existingStatus !== "granted") {
-  //     const { status } = await Notifications.requestPermissionsAsync();
-  //     finalStatus = status;
-  //   }
-
-  //   if (finalStatus !== "granted") {
-  //     console.warn("Failed to get push notification permissions!");
-  //     return null;
-  //   }
-
-  //   try {
-  //     const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync();
-  //     console.log("Expo Push Token:", expoPushToken);
-  //     await AsyncStorage.setItem("expoPushToken", expoPushToken);
-  //     return expoPushToken;
-  //   } catch (error) {
-  //     console.error("Error fetching Expo push token:", error);
-  //     return null;
-  //   }
-  // };
-
   const registerForPushNotifications = async () => {
-    // Check if it's a physical device
     if (!Device.isDevice) {
       console.warn("Must use a physical device for push notifications");
       return null;
     }
 
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      console.warn("Failed to get push notification permissions!");
+      return null;
+    }
+
     try {
-      // First, request permissions
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      // If no permission, return null
-      if (finalStatus !== 'granted') {
-        console.warn('Failed to get push notification permissions!');
-        return null;
-      }
-
-      // Get the Expo push token
-      const tokenResponse = await Notifications.getExpoPushTokenAsync({
-        projectId: 'YOUR_EXPO_PROJECT_ID' // Replace with your actual Expo project ID
-      });
-
-      const token = tokenResponse.data;
-      console.log('Expo Push Token:', token);
-
-      // Optionally store the token
-      await AsyncStorage.setItem('expoPushToken', token);
-
-      return token;
+      const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync();
+      console.log("Expo Push Token:", expoPushToken);
+      await AsyncStorage.setItem("expoPushToken", expoPushToken);
+      return expoPushToken;
     } catch (error) {
-      console.error('Error registering for push notifications:', error);
+      console.error("Error fetching Expo push token:", error);
       return null;
     }
   };

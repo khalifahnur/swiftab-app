@@ -41,5 +41,8 @@ app.json
 app-example
 
 .env
+eas.json
 
-app.json
+google-services.json
+
+swiftab-project-firebase-adminsdk-fbsvc-d714c88a51.json

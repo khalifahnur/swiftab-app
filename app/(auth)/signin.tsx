@@ -17,6 +17,11 @@ import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { useAuthRequest } from 'expo-auth-session';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +54,19 @@ const LoginScreen = () => {
       });
     }
   }, [signInMutation.isSuccess, signInMutation.isError]);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: '315996169761-6sp1vrr7pjf5h0qlv59dlqp9sqtj070g.apps.googleusercontent.com',
+    scopes: ['profile', 'email'],
+    redirectUri: 'com.lifkha.swiftabapp:/auth',
+  });
+
+  React.useEffect(() => {
+    if (response?.type === 'success') {
+      console.log('User Info:', response.authentication);
+    }
+  }, [response]);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -144,7 +162,7 @@ const LoginScreen = () => {
             style={styles.socialIcon}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => promptAsync()}>
           <Image
             source={{
               uri: "https://img.icons8.com/?size=100&id=17949&format=png&color=000000",
